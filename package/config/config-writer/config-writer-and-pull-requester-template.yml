@@ -1,0 +1,56 @@
+#@ load("@ytt:data", "data")
+#@ load("/helpers.star", "merge_labels", "param")
+
+#@ if/end "config-writer-and-pull-requester-template" not in data.values.excluded_blueprints:
+---
+apiVersion: carto.run/v1alpha1
+kind: ClusterTemplate
+metadata:
+  name: config-writer-and-pull-requester-template
+spec:
+  ytt: |
+    #@ load("@ytt:data", "data")
+    #@ load("@ytt:json", "json")
+    #@ load("@ytt:base64", "base64")
+    ---
+    apiVersion: carto.run/v1alpha1
+    kind: Runnable
+    metadata:
+      name: #@ data.values.workload.metadata.name + "-config-writer-pull-requester"
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "config-writer-pull-requester" })
+    spec:
+      #@ if/end hasattr(data.values.workload.spec, "serviceAccountName"):
+      serviceAccountName: #@ data.values.workload.spec.serviceAccountName
+
+      runTemplateRef:
+        name: commit-and-pr-taskrun
+
+      inputs:
+        serviceAccount: #@ data.values.params.serviceAccount
+        params:
+          - name: git_server_address
+            value: #@ data.values.params.gitops_server_address
+          - name: repository_owner
+            value: #@ data.values.params.gitops_repository_owner
+          - name: repository_name
+            value: #@ data.values.params.gitops_repository_name
+          - name: base_branch
+            value: #@ param("gitops_branch")
+          - name: git_user_name
+            value: #@ param("gitops_user_name")
+          - name: git_user_email
+            value: #@ param("gitops_user_email")
+          - name: git_commit_message
+            value: #@ param("gitops_commit_message")
+          - name: git_files
+            value: #@ base64.encode(json.encode(data.values.config))
+          - name: sub_path
+            value: #@ "config/" + data.values.workload.metadata.namespace + "/" + data.values.workload.metadata.name
+          - name: git_server_kind
+            value: #@ data.values.params.gitops_server_kind
+          - name: commit_branch
+            value: #@ data.values.params.gitops_commit_branch
+          - name: pull_request_title
+            value: #@ data.values.params.gitops_pull_request_title
+          - name: pull_request_body
+            value: #@ data.values.params.gitops_pull_request_body

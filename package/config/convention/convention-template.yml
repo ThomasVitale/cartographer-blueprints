@@ -1,0 +1,67 @@
+#@ load("@ytt:data", "data")
+#@ load("/helpers.star", "merge_annotations", "merge_labels", "param")
+
+#@ if/end "convention-template" not in data.values.excluded_blueprints:
+---
+apiVersion: carto.run/v1alpha1
+kind: ClusterConfigTemplate
+metadata:
+  name: convention-template
+spec:
+  params:
+    - name: serviceAccount
+      default: default
+
+  configPath: .status.template
+
+  healthRule:
+    singleConditionType: Ready
+
+  ytt: |
+    #@ load("@ytt:data", "data")
+
+    #@ def build_fixed_annotations():
+    #@   fixed_annotations = {}
+    #@   if param("debug"):
+    #@     fixed_annotations["apps.kadras.io/debug"] = param("debug")
+    #@   end
+    #@   if param("live-update"):
+    #@     fixed_annotations["apps.kadras.io/live-update"] = param("live-update")
+    #@   end
+    #@   if param("debug") or param("live-update"):
+    #@     fixed_annotations["autoscaling.knative.dev/min-scale"] = "1"
+    #@     fixed_annotations["autoscaling.knative.dev/max-scale"] = "1"
+    #@   end
+    #@   return fixed_annotations
+    #@ end
+
+    apiVersion: conventions.carto.run/v1alpha1
+    kind: PodIntent
+    metadata:
+      name: #@ data.values.workload.metadata.name
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "intent" })
+    spec:
+      serviceAccountName: #@ data.values.params.serviceAccount
+      template:
+        metadata:
+          annotations: #@ merge_annotations(build_fixed_annotations())
+          labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
+        spec:
+          serviceAccountName: #@ data.values.params.serviceAccount
+          containers:
+            - name: workload
+              image: #@ data.values.image
+              securityContext:
+                runAsUser: 1000
+              #@ if hasattr(data.values.workload.spec, "env"):
+              env:
+                #@ for var in data.values.workload.spec.env:
+                - name: #@ var.name
+                  #@ if/end hasattr(var, "value"):
+                  value: #@ var.value
+                  #@ if/end hasattr(var, "valueFrom"):
+                  valueFrom: #@ var.valueFrom
+                #@ end
+              #@ end
+              #@ if/end hasattr(data.values.workload.spec, "resources"):
+              resources: #@ data.values.workload.spec["resources"]

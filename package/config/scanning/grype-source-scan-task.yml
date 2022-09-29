@@ -1,0 +1,45 @@
+#@ load("@ytt:data", "data")
+
+#@ if/end "grype-source-scan-task" not in data.values.excluded_blueprints:
+---
+apiVersion: tekton.dev/v1beta1
+kind: ClusterTask
+metadata:
+  name: grype-source-scan-task
+  labels:
+    apps.kadras.io/task: source-scan
+spec:
+  description: Task to scan application source code with Grype
+  params:
+    - name: source-url
+    - name: source-revision
+    - name: source-subpath
+    - name: grype-args
+      default:
+        - "--fail-on=critical"
+        - "--scope=AllLayers"
+        - "--only-fixed"
+  workspaces:
+    - name: source-dir
+      mountPath: /workspace/source-dir
+  steps:
+    - name: prepare
+      image: gradle
+      script: |-
+        cd `mktemp -d`
+        curl -SL $(params.source-url) | tar xvz -m
+        cd $(params.source-subpath)
+        mv * $(workspaces.source-dir.path)
+        cd $(workspaces.source-dir.path)
+        ./gradlew --no-daemon assemble
+    - name: scan
+      image: anchore/grype:v0.50.2
+      workingDir: $(workspaces.source-dir.path)
+      args: ["dir:.", "$(params.grype-args[*])", "--config=/workspace/grype/grype.yml"]
+      volumeMounts:
+        - name: grype-config
+          mountPath: /workspace/grype
+  volumes:
+    - name: grype-config
+      secret:
+        secretName: grype-config

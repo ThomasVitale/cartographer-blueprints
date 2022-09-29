@@ -1,0 +1,40 @@
+#@ load("@ytt:data", "data")
+#@ load("/helpers.star", "merge_labels")
+
+#@ if/end "grype-source-scan-template" not in data.values.excluded_blueprints:
+---
+apiVersion: carto.run/v1alpha1
+kind: ClusterSourceTemplate
+metadata:
+  name: grype-source-scan-template
+spec:
+  urlPath: .status.outputs.url
+  revisionPath: .status.outputs.revision
+
+  healthRule:
+    singleConditionType: Ready
+  
+  ytt: |
+    #@ load("@ytt:data", "data")
+    ---
+    apiVersion: carto.run/v1alpha1
+    kind: Runnable
+    metadata:
+      name: #@ data.values.workload.metadata.name + "-source-scan"
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "scan" })
+    spec:
+      #@ if/end hasattr(data.values.workload.spec, "serviceAccountName"):
+      serviceAccountName: #@ data.values.workload.spec.serviceAccountName
+
+      runTemplateRef:
+        name: grype-source-scan-taskrun
+        kind: ClusterRunTemplate
+
+      inputs:
+        source-url: #@ data.values.source.url
+        source-revision: #@ data.values.source.revision
+        #@ if hasattr(data.values.workload.spec.source, "subPath"):
+        source-subpath: #@ data.values.workload.spec.source.subPath
+        #@ else:
+        source-subpath: "."
+        #@ end

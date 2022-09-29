@@ -1,0 +1,47 @@
+#@ load("@ytt:data", "data")
+#@ load("/helpers.star", "git_repository", "image_bundle", "is_gitops", "merge_labels", "param")
+
+#@ if/end "deliverable-template" not in data.values.excluded_blueprints:
+---
+apiVersion: carto.run/v1alpha1
+kind: ClusterTemplate
+metadata:
+  name: deliverable-template
+  labels:
+    apps.kadras.io/deliverable-type: web
+spec:
+  params:
+    - name: registry
+      default: {}
+
+  healthRule:
+    singleConditionType: Ready
+
+  ytt: |
+    #@ load("@ytt:data", "data")
+    ---
+    apiVersion: carto.run/v1alpha1
+    kind: Deliverable
+    metadata:
+      name: #@ data.values.workload.metadata.name
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "deliverable", "apps.kadras.io/deliverable-type": "web" })
+    spec:
+      #@ if/end hasattr(data.values.workload.spec, "serviceAccountName"):
+      serviceAccountName: #@ data.values.workload.spec.serviceAccountName
+
+      #@ if/end is_gitops():
+      params:
+        - name: "gitops_access_secret"
+          value: #@ param("gitops_access_secret")
+        - name: gitops_sub_path
+          value: #@ "config/" + data.values.workload.metadata.namespace + "/" + data.values.workload.metadata.name
+
+      source:
+        #@ if/end is_gitops():
+        git:
+          url: #@ git_repository()
+          ref:
+            branch: #@ param("gitops_branch")
+
+        #@ if/end not is_gitops():
+        image: #@ image_bundle()

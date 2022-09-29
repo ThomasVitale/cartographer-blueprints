@@ -1,0 +1,33 @@
+#@ load("@ytt:data", "data")
+#@ load("/helpers.star", "merge_labels")
+
+#@ if/end "grype-image-scan-template" not in data.values.excluded_blueprints:
+---
+apiVersion: carto.run/v1alpha1
+kind: ClusterImageTemplate
+metadata:
+  name: grype-image-scan-template
+spec:
+  imagePath: .status.outputs.latestImage
+
+  healthRule:
+    singleConditionType: Ready
+  
+  ytt: |
+    #@ load("@ytt:data", "data")
+    ---
+    apiVersion: carto.run/v1alpha1
+    kind: Runnable
+    metadata:
+      name: #@ data.values.workload.metadata.name + "-image-scan"
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "scan" })
+    spec:
+      #@ if/end hasattr(data.values.workload.spec, "serviceAccountName"):
+      serviceAccountName: #@ data.values.workload.spec.serviceAccountName
+
+      runTemplateRef:
+        name: grype-image-scan-taskrun
+        kind: ClusterRunTemplate
+
+      inputs:
+        image: #@ data.values.image

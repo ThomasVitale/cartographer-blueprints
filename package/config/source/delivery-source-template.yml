@@ -1,0 +1,58 @@
+#@ load("@ytt:data", "data")
+#@ load("/helpers.star", "merge_labels", "param")
+
+#@ if/end "delivery-source-template" not in data.values.excluded_blueprints:
+---
+apiVersion: carto.run/v1alpha1
+kind: ClusterSourceTemplate
+metadata:
+  name: delivery-source-template
+spec:
+  params:
+    - name: gitImplementation
+      default: go-git
+    - name: serviceAccount
+      default: default
+
+  urlPath: .status.artifact.url
+  revisionPath: .status.artifact.revision
+
+  healthRule:
+    singleConditionType: Ready
+
+  ytt: |
+    #@ load("@ytt:data", "data")
+
+    #@ if hasattr(data.values.deliverable.spec.source, "image"):
+    #@   oci_artifact = data.values.deliverable.spec.source.image.split(":", 1)
+    #@ end
+
+    #@ if/end hasattr(data.values.deliverable.spec.source, "git"):
+    ---
+    apiVersion: source.toolkit.fluxcd.io/v1beta1
+    kind: GitRepository
+    metadata:
+      name: #@ data.values.deliverable.metadata.name + "-delivery"
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "source" })
+    spec:
+      interval: 15s
+      url: #@ data.values.deliverable.spec.source.git.url
+      ref: #@ data.values.deliverable.spec.source.git.ref
+      gitImplementation: #@ data.values.params.gitImplementation
+      #@ if/end param("gitops_access_secret"):
+      secretRef:
+        name: #@ param("gitops_access_secret")
+
+    #@ if/end hasattr(data.values.deliverable.spec.source, "image"):
+    ---
+    apiVersion: source.toolkit.fluxcd.io/v1beta2
+    kind: OCIRepository
+    metadata:
+      name: #@ data.values.deliverable.metadata.name + "-delivery"
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "source" })
+    spec:
+      serviceAccountName: #@ data.values.params.serviceAccount
+      interval: 15s
+      url: #@ "oci://" + oci_artifact[0]
+      ref:
+        tag: #@ oci_artifact[1]

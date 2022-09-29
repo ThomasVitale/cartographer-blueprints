@@ -1,0 +1,27 @@
+#@ load("@ytt:data", "data")
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: grype
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: grype-config
+  namespace: grype
+stringData:
+  grype.yml: |
+    ignore:
+      - vulnerability: CVE-2016-1000027
+
+---
+apiVersion: secretgen.carvel.dev/v1alpha1
+kind: SecretExport
+metadata:
+  name: grype-config
+  namespace: grype
+spec:
+  toNamespace: "*"

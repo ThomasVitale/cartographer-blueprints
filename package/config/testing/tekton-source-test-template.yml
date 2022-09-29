@@ -1,0 +1,47 @@
+#@ load("@ytt:data", "data")
+#@ load("/helpers.star", "merge_labels")
+
+#@ if/end "tekton-source-test-template" not in data.values.excluded_blueprints:
+---
+apiVersion: carto.run/v1alpha1
+kind: ClusterSourceTemplate
+metadata:
+  name: tekton-source-test-template
+spec:
+  urlPath: .status.outputs.url
+  revisionPath: .status.outputs.revision
+
+  healthRule:
+    singleConditionType: Ready
+  
+  ytt: |
+    #@ load("@ytt:data", "data")
+    ---
+    apiVersion: carto.run/v1alpha1
+    kind: Runnable
+    metadata:
+      name: #@ data.values.workload.metadata.name + "-test"
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "test" })
+    spec:
+      #@ if/end hasattr(data.values.workload.spec, "serviceAccountName"):
+      serviceAccountName: #@ data.values.workload.spec.serviceAccountName
+
+      runTemplateRef:
+        name: tekton-source-test-pipelinerun
+        kind: ClusterRunTemplate
+
+      selector:
+        resource:
+          apiVersion: tekton.dev/v1beta1
+          kind: Pipeline
+        matchingLabels:
+          apps.kadras.io/pipeline: test
+
+      inputs:
+        source-url: #@ data.values.source.url
+        source-revision: #@ data.values.source.revision
+        #@ if hasattr(data.values.workload.spec.source, "subPath"):
+        source-subpath: #@ data.values.workload.spec.source.subPath
+        #@ else:
+        source-subpath: "."
+        #@ end

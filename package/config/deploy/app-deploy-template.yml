@@ -1,0 +1,83 @@
+#@ load("@ytt:data", "data")
+#@ load("/helpers.star", "merge_labels")
+
+#@ if/end "app-deploy-template" not in data.values.excluded_blueprints:
+---
+apiVersion: carto.run/v1alpha1
+kind: ClusterTemplate
+metadata:
+  name: app-deploy-template
+spec:
+  params:
+    - name: serviceAccount
+      default: default
+  
+  healthRule:
+    multiMatch:
+      healthy:
+        matchConditions:
+          - type: ReconcileSucceeded
+            status: 'True'
+      unhealthy:
+        matchFields:
+          - key: 'status.conditions[?(@.type=="ReconcileFailed")].status'
+            operator: 'In'
+            values: ['True']
+            messagePath: '.status.usefulErrorMessage'
+
+  observedCompletion:
+    succeeded:
+      key: '.status.conditions[?(@.type=="ReconcileSucceeded")].status'
+      value: 'True'
+    failed:
+      key: '.status.conditions[?(@.type=="ReconcileSucceeded")].status'
+      value: 'False'
+
+  ytt: |
+    #@ load("@ytt:data", "data")
+    #@ load("@ytt:yaml", "yaml")
+
+    #@ def/end knative_service():
+    ---
+    apiVersion: serving.knative.dev/v1
+    kind: Service
+    metadata:
+      name: #@ data.values.workload.metadata.name
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
+    spec:
+      template: #@ data.values.config
+    
+    #@ def/end kapp_config():
+    ---
+    apiVersion: kapp.k14s.io/v1alpha1
+    kind: Config
+    rebaseRules:
+      - path: [metadata, annotations, serving.knative.dev/creator]
+        type: copy
+        sources: [new, existing]
+        resourceMatchers: &matchers
+          - apiVersionKindMatcher: {apiVersion: serving.knative.dev/v1, kind: Service}
+      - path: [metadata, annotations, serving.knative.dev/lastModifier]
+        type: copy
+        sources: [new, existing]
+        resourceMatchers: *matchers
+
+    ---
+    apiVersion: kappctrl.k14s.io/v1alpha1
+    kind: App
+    metadata:
+      name: #@ data.values.workload.metadata.name
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "deploy" })
+    spec:
+      syncPeriod: 10m0s
+      serviceAccountName: #@ data.values.params.serviceAccount
+      fetch:
+        - inline:
+            paths:
+              service.yml: #@ yaml.encode(knative_service())
+              kapp-config.yml: #@ yaml.encode(kapp_config())
+      template:
+        - ytt: {}
+        - kbld: {}
+      deploy:
+        - kapp: {}

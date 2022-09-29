@@ -1,0 +1,6 @@
+#@data/values-schema
+---
+
+#@schema/desc "A list of blueprints and manifests to esclude from being applied."
+excluded_blueprints:
+  - ""

@@ -1,0 +1,25 @@
+#@ load("@ytt:data", "data")
+
+#@ if/end "grype-image-scan-taskrun" not in data.values.excluded_blueprints:
+---
+apiVersion: carto.run/v1alpha1
+kind: ClusterRunTemplate
+metadata:
+  name: grype-image-scan-taskrun
+spec:
+  outputs:
+    latestImage: spec.params[?(@.name=="image")].value
+
+  template:
+    apiVersion: tekton.dev/v1beta1
+    kind: TaskRun
+    metadata:
+      generateName: $(runnable.metadata.name)$-
+      labels: $(runnable.metadata.labels)$
+    spec:
+      params:
+      - name: image
+        value: $(runnable.spec.inputs.image)$
+      taskRef:
+        name: grype-image-scan-task
+        kind: ClusterTask
