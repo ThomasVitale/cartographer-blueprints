@@ -24,7 +24,34 @@ spec:
   
   ytt: |
     #@ load("@ytt:data", "data")
-    #@ load("/helpers.star", "merge_labels", "param")
+
+    #@ def param(key):
+    #@   if not key in data.values.params:
+    #@     return None
+    #@   end
+    #@   return data.values.params[key]
+    #@ end
+
+    #@ def merge_labels(fixed_values):
+    #@   labels = {}
+    #@   if hasattr(data.values.deliverable.metadata, "labels"):
+    #@     labels.update(data.values.deliverable.metadata.labels)
+    #@   end
+    #@   labels.update(fixed_values)
+    #@   return labels
+    #@ end
+
+    #@ def image():
+    #@   return "/".join([
+    #@    data.values.params.registry.server,
+    #@    data.values.params.registry.repository,
+    #@    "-".join([
+    #@      data.values.workload.metadata.name,
+    #@      data.values.workload.metadata.namespace,
+    #@    ])
+    #@   ])
+    #@ end
+
     ---
     apiVersion: kpack.io/v1alpha2
     kind: Image

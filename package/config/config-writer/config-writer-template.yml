@@ -20,7 +20,34 @@ spec:
     #@ load("@ytt:data", "data")
     #@ load("@ytt:json", "json")
     #@ load("@ytt:base64", "base64")
-    #@ load("/helpers.star", "git_repository", "image_bundle", "is_gitops", "merge_labels", "param")
+
+    #@ def param(key):
+    #@   if not key in data.values.params:
+    #@     return None
+    #@   end
+    #@   return data.values.params[key]
+    #@ end
+
+    #@ def merge_labels(fixed_values):
+    #@   labels = {}
+    #@   if hasattr(data.values.deliverable.metadata, "labels"):
+    #@     labels.update(data.values.deliverable.metadata.labels)
+    #@   end
+    #@   labels.update(fixed_values)
+    #@   return labels
+    #@ end
+
+    #@ def image_bundle():
+    #@   return "/".join([
+    #@    data.values.params.registry.server,
+    #@    data.values.params.registry.repository,
+    #@    "-".join([
+    #@      data.values.workload.metadata.name,
+    #@      data.values.workload.metadata.namespace,
+    #@      "bundle",
+    #@    ])
+    #@   ]) + ":" + data.values.workload.metadata.uid
+    #@ end
 
     #@ def ca_cert_data():
     #@   if "ca_cert_data" not in param("registry"):
@@ -28,6 +55,34 @@ spec:
     #@   end
     #@
     #@   return param("registry")["ca_cert_data"]
+    #@ end
+
+    #@ def is_gitops():
+    #@   if 'gitops_server_address' in data.values.params and 'gitops_repository_owner' in data.values.params and 'gitops_repository_name' in data.values.params:
+    #@     return True
+    #@   end
+    #@   if 'gitops_server_address' in data.values.params or 'gitops_repository_owner' in data.values.params or 'gitops_repository_name' in data.values.params:
+    #@     'gitops_server_address' in data.values.params or assert.fail("missing param: gitops_server_address")
+    #@     'gitops_repository_owner' in data.values.params or assert.fail("missing param: gitops_repository_owner")
+    #@     'gitops_repository_name' in data.values.params or assert.fail("missing param: gitops_repository_name")
+    #@   end
+    #@   return False
+    #@ end
+
+    #@ def strip_trailing_slash(some_string):
+    #@   if some_string[-1] == "/":
+    #@     return some_string[:-1]
+    #@   end
+    #@   return some_string
+    #@ end
+
+    #@ def git_repository():
+    #@   strip_trailing_slash(data.values.params.gitops_server_address)
+    #@   return "/".join([
+    #@     strip_trailing_slash(data.values.params.gitops_server_address),
+    #@     strip_trailing_slash(data.values.params.gitops_repository_owner),
+    #@     data.values.params.gitops_repository_name,
+    #@   ]) + ".git"
     #@ end
 
     ---

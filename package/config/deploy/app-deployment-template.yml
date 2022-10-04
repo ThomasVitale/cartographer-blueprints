@@ -36,7 +36,15 @@ spec:
     #@ load("@ytt:data", "data")
     #@ load("@ytt:yaml", "yaml")
     #@ load("@ytt:assert", "assert")
-    #@ load("/helpers.star", "merge_labels")
+
+    #@ def merge_labels(fixed_values):
+    #@   labels = {}
+    #@   if hasattr(data.values.deliverable.metadata, "labels"):
+    #@     labels.update(data.values.deliverable.metadata.labels)
+    #@   end
+    #@   labels.update(fixed_values)
+    #@   return labels
+    #@ end
     
     #@ def/end kapp_config():
     ---

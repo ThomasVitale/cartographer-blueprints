@@ -18,7 +18,31 @@ spec:
 
   ytt: |
     #@ load("@ytt:data", "data")
-    #@ load("/helpers.star", "merge_annotations", "merge_labels", "param")
+    
+    #@ def param(key):
+    #@   if not key in data.values.params:
+    #@     return None
+    #@   end
+    #@   return data.values.params[key]
+    #@ end
+
+    #@ def merge_labels(fixed_values):
+    #@   labels = {}
+    #@   if hasattr(data.values.deliverable.metadata, "labels"):
+    #@     labels.update(data.values.deliverable.metadata.labels)
+    #@   end
+    #@   labels.update(fixed_values)
+    #@   return labels
+    #@ end
+
+    #@ def merge_annotations(fixed_values):
+    #@   annotations = {}
+    #@   if type(param("annotations")) == "dict" or type(param("annotations")) == "struct":
+    #@     annotations.update(param("annotations"))
+    #@   end
+    #@   annotations.update(fixed_values)
+    #@   return annotations
+    #@ end
 
     #@ def build_fixed_annotations():
     #@   fixed_annotations = {}
