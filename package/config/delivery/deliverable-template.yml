@@ -1,5 +1,4 @@
 #@ load("@ytt:data", "data")
-#@ load("/helpers.star", "git_repository", "image_bundle", "is_gitops", "merge_labels", "param")
 
 #@ if/end "deliverable-template" not in data.values.excluded_blueprints:
 ---
@@ -19,6 +18,7 @@ spec:
 
   ytt: |
     #@ load("@ytt:data", "data")
+    #@ load("/helpers.star", "git_repository", "image_bundle", "is_gitops", "merge_labels", "param")
     ---
     apiVersion: carto.run/v1alpha1
     kind: Deliverable

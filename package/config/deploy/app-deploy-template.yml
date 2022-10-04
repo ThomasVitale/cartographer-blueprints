@@ -1,5 +1,4 @@
 #@ load("@ytt:data", "data")
-#@ load("/helpers.star", "merge_labels")
 
 #@ if/end "app-deploy-template" not in data.values.excluded_blueprints:
 ---
@@ -36,6 +35,7 @@ spec:
   ytt: |
     #@ load("@ytt:data", "data")
     #@ load("@ytt:yaml", "yaml")
+    #@ load("/helpers.star", "merge_labels")
 
     #@ def/end knative_service():
     ---

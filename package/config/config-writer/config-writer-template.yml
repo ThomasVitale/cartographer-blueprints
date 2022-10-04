@@ -1,5 +1,4 @@
 #@ load("@ytt:data", "data")
-#@ load("/helpers.star", "git_repository", "image_bundle", "is_gitops", "merge_labels", "param")
 
 #@ if/end "config-writer-template" not in data.values.excluded_blueprints:
 ---
@@ -21,6 +20,7 @@ spec:
     #@ load("@ytt:data", "data")
     #@ load("@ytt:json", "json")
     #@ load("@ytt:base64", "base64")
+    #@ load("/helpers.star", "git_repository", "image_bundle", "is_gitops", "merge_labels", "param")
 
     #@ def ca_cert_data():
     #@   if "ca_cert_data" not in param("registry"):

@@ -92,7 +92,7 @@ Either way, you can then install the Cartographer Blueprints package using [`kct
 ```shell
 kctrl package install -i cartographer-blueprints \
     -p cartographer-blueprints.packages.kadras.io \
-    -v 0.1.0 \
+    -v 0.1.1 \
     -n carvel-packages
 ```
 
@@ -128,7 +128,7 @@ Then, reference it from the `kctrl` command when installing or upgrading the pac
 ```shell
 kctrl package install -i cartographer-blueprints \
     -p cartographer-blueprints.packages.kadras.io \
-    -v 0.1.0 \
+    -v 0.1.1 \
     -n carvel-packages \
     --values-file values.yml
 ```

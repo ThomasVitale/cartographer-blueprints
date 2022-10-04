@@ -1,5 +1,4 @@
 #@ load("@ytt:data", "data")
-#@ load("/helpers.star", "merge_labels")
 
 #@ if/end "grype-image-scan-template" not in data.values.excluded_blueprints:
 ---
@@ -15,6 +14,7 @@ spec:
   
   ytt: |
     #@ load("@ytt:data", "data")
+    #@ load("/helpers.star", "merge_labels")
     ---
     apiVersion: carto.run/v1alpha1
     kind: Runnable

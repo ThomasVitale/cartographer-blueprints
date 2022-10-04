@@ -1,5 +1,4 @@
 #@ load("@ytt:data", "data")
-#@ load("/helpers.star", "merge_labels", "param")
 
 #@ if/end "delivery-source-template" not in data.values.excluded_blueprints:
 ---
@@ -22,6 +21,7 @@ spec:
 
   ytt: |
     #@ load("@ytt:data", "data")
+    #@ load("/helpers.star", "merge_labels", "param")
 
     #@ if hasattr(data.values.deliverable.spec.source, "image"):
     #@   oci_artifact = data.values.deliverable.spec.source.image.split(":", 1)

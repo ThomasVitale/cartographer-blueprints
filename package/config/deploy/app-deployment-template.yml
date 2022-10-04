@@ -1,5 +1,4 @@
 #@ load("@ytt:data", "data")
-#@ load("/helpers.star", "merge_labels")
 
 #@ if/end "app-deployment-template" not in data.values.excluded_blueprints:
 ---
@@ -37,6 +36,7 @@ spec:
     #@ load("@ytt:data", "data")
     #@ load("@ytt:yaml", "yaml")
     #@ load("@ytt:assert", "assert")
+    #@ load("/helpers.star", "merge_labels")
     
     #@ def/end kapp_config():
     ---
