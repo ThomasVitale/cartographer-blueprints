@@ -18,6 +18,7 @@ spec:
 
   ytt: |
     #@ load("@ytt:data", "data")
+    #@ load("@ytt:assert", "assert")
 
     #@ def param(key):
     #@   if not key in data.values.params:

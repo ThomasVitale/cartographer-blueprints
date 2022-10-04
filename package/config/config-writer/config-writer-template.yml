@@ -18,6 +18,7 @@ spec:
 
   ytt: |
     #@ load("@ytt:data", "data")
+    #@ load("@ytt:assert", "assert")
     #@ load("@ytt:json", "json")
     #@ load("@ytt:base64", "base64")
 
