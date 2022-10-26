@@ -98,3 +98,6 @@ spec:
         #@ end
         #@ end
         services: #@ data.values.params.kpackBindings
+      cache:
+        volume:
+          size: "2Gi"
