@@ -68,7 +68,7 @@ spec:
       name: #@ data.values.deliverable.metadata.name
       labels: #@ merge_labels({ "app.kubernetes.io/component": "deploy" })
     spec:
-      syncPeriod: 10m0s
+      syncPeriod: 30s
       serviceAccountName: #@ data.values.params.serviceAccount
       fetch:
         - http:

@@ -54,6 +54,8 @@ spec:
       url: #@ data.values.deliverable.spec.source.git.url
       ref: #@ data.values.deliverable.spec.source.git.ref
       gitImplementation: #@ data.values.params.gitImplementation
+      ignore: |
+        !.git
       #@ if/end param("gitops_access_secret"):
       secretRef:
         name: #@ param("gitops_access_secret")

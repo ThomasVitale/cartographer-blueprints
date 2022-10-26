@@ -92,7 +92,7 @@ Either way, you can then install the Cartographer Blueprints package using [`kct
 ```shell
 kctrl package install -i cartographer-blueprints \
     -p cartographer-blueprints.packages.kadras.io \
-    -v 0.1.3 \
+    -v 0.2.0 \
     -n carvel-packages
 ```
 
@@ -128,7 +128,7 @@ Then, reference it from the `kctrl` command when installing or upgrading the pac
 ```shell
 kctrl package install -i cartographer-blueprints \
     -p cartographer-blueprints.packages.kadras.io \
-    -v 0.1.3 \
+    -v 0.2.0 \
     -n carvel-packages \
     --values-file values.yml
 ```
@@ -140,8 +140,9 @@ For documentation specific to Cartographer, check out [cartographer.sh](https://
 ## References
 
 This package is inspired by:
+
 * the [examples](https://github.com/vmware-tanzu/cartographer/tree/main/examples) in the Cartographer project;
-* the [Cartographer Catalog](https://github.com/vmware-tanzu/cartographer-catalog) package used in Tanzu Community Edition;
+* the original cartographer-catalog package used in [Tanzu Community Edition](https://github.com/vmware-tanzu/community-edition) before its retirement;
 * the [set of blueprints](https://github.com/vrabbi/tap-oss/tree/main/packages/ootb-supply-chains) included in an example of Tanzu Application Platform OSS stack.
 
 ## Supply Chain Security
