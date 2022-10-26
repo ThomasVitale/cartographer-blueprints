@@ -4,6 +4,8 @@ metadata:
   creationTimestamp: null
   name: cartographer-blueprints.packages.kadras.io.0.0.0
 spec:
+  licenses:
+  - Apache 2.0
   refName: cartographer-blueprints.packages.kadras.io
   releasedAt: null
   template:
