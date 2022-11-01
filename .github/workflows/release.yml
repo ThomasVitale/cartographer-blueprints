@@ -12,8 +12,8 @@ jobs:
       packages: write
     uses: arktonix/cloud-native-utils/.github/workflows/package-release.yml@main
     with:
-      package-name-slug: spring-boot-conventions
-      package-name-display: Spring Boot Conventions
+      package-name-slug: cartographer-blueprints
+      package-name-display: Cartographer Blueprints
       registry-server: ghcr.io
       registry-username: ${{ github.actor }}
       image: ${{ github.repository }}
