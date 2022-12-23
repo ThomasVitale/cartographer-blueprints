@@ -6,6 +6,11 @@ apiVersion: carto.run/v1alpha1
 kind: ClusterConfigTemplate
 metadata:
   name: convention-template
+  annotations:
+    doc: |
+      This templates uses information about the workload and the container image
+      to build a PodIntent object on which all registered Cartographer Conventions
+      will be applied. It returns a PodTemplateSpec.
 spec:
   params:
     - name: serviceAccount

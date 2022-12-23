@@ -8,13 +8,13 @@ metadata:
   name: deliverable-template
   labels:
     apps.kadras.io/deliverable-type: web
+  annotations:
+    doc: |
+      This templates generates a Deliverable resource for the current Workload.
 spec:
   params:
     - name: registry
       default: {}
-
-  healthRule:
-    singleConditionType: Ready
 
   ytt: |
     #@ load("@ytt:data", "data")
@@ -88,10 +88,8 @@ spec:
 
       #@ if/end is_gitops():
       params:
-        - name: "gitops_access_secret"
+        - name: gitops_access_secret
           value: #@ param("gitops_access_secret")
-        - name: gitops_sub_path
-          value: #@ "config/" + data.values.workload.metadata.namespace + "/" + data.values.workload.metadata.name
 
       source:
         #@ if/end is_gitops():
@@ -102,3 +100,6 @@ spec:
 
         #@ if/end not is_gitops():
         image: #@ image_bundle()
+      
+      #@ if/end is_gitops():
+      subPath: #@ "config/" + data.values.workload.metadata.namespace + "/" + data.values.workload.metadata.name

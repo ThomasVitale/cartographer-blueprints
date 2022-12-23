@@ -1,0 +1,72 @@
+#@ load("@ytt:data", "data")
+
+#@ if/end "tekton-scan-source-template" not in data.values.excluded_blueprints:
+---
+apiVersion: carto.run/v1alpha1
+kind: ClusterSourceTemplate
+metadata:
+  name: tekton-scan-source-template
+  annotations:
+    doc: |
+      This templates consumes an application source repository and executes a Tekton
+      scanning task on every detected input change, using the configured vulnerability scanner.
+spec:
+  params:
+    - name: scannerName
+      default: trivy
+
+  urlPath: .spec.params[0].value
+  revisionPath: .spec.params[1].value
+  
+  lifecycle: tekton
+  
+  ytt: |
+    #@ load("@ytt:assert", "assert")
+    #@ load("@ytt:data", "data")
+
+    #@ def param(key):
+    #@   if not key in data.values.params:
+    #@     return None
+    #@   end
+    #@   return data.values.params[key]
+    #@ end
+
+    #@ def merge_labels(fixed_values):
+    #@   labels = {}
+    #@   if hasattr(data.values.workload.metadata, "labels"):
+    #@     labels.update(data.values.workload.metadata.labels)
+    #@   end
+    #@   labels.update(fixed_values)
+    #@   return labels
+    #@ end
+
+    #@ vulnerabilityScanner = param("scannerName")
+    #@ validVulnerabilityScanners = ["grype", "trivy"]
+    #@ if vulnerabilityScanner not in validVulnerabilityScanners:
+    #@   assert.fail("{} not in {}".format(vulnerabilityScanner, validVulnerabilityScanners))
+    #@ end
+
+    ---
+    apiVersion: tekton.dev/v1beta1
+    kind: TaskRun
+    metadata:
+      generateName: #@ data.values.workload.metadata.name + "-source-scanner-"
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "scan" })
+    spec:
+      taskRef:
+        name: #@ vulnerabilityScanner + "-source-scanner"
+        kind: ClusterTask
+      workspaces:
+        - name: source-dir
+          emptyDir: {}
+      params:
+      - name: source-url
+        value: #@ data.values.source.url
+      - name: source-revision
+        value: #@ data.values.source.revision
+      - name: source-subpath
+        #@ if hasattr(data.values.workload.spec.source, "subPath"):
+        value: #@ data.values.workload.spec.source.subPath
+        #@ else:
+        value: "."
+        #@ end

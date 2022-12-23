@@ -1,11 +1,15 @@
 #@ load("@ytt:data", "data")
 
-#@ if/end "config-template" not in data.values.excluded_blueprints:
+#@ if/end "knative-config-template" not in data.values.excluded_blueprints:
 ---
 apiVersion: carto.run/v1alpha1
 kind: ClusterConfigTemplate
 metadata:
-  name: config-template
+  name: knative-config-template
+  annotations:
+    doc: |
+      This templates consumes a PodTemplateSpec and returns a ConfigMap
+      which contains a "delivery.yml" manifest for a Knative Service.
 spec:
   configPath: .data
 

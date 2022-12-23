@@ -1,0 +1,32 @@
+#@ load("@ytt:data", "data")
+
+#@ if/end "trivy-source-scanner-tekton-task" not in data.values.excluded_blueprints:
+---
+apiVersion: tekton.dev/v1beta1
+kind: ClusterTask
+metadata:
+  name: trivy-source-scanner
+spec:
+  description: Task to scan application source code with Trivy
+  params:
+    - name: source-url
+    - name: source-revision
+    - name: source-subpath
+    - name: trivy-args
+      default:
+        - "--ignore-unfixed"
+  workspaces:
+    - name: source-dir
+      mountPath: /workspace/source-dir
+  steps:
+    - name: prepare
+      image: gradle
+      script: |-
+        cd `mktemp -d`
+        curl -SL $(params.source-url) | tar xvz -m
+        cd $(params.source-subpath)
+        mv * $(workspaces.source-dir.path)
+    - name: scan
+      image: aquasec/trivy:0.35.0
+      workingDir: $(workspaces.source-dir.path)
+      args: ["fs", "$(params.trivy-args[*])", "."]

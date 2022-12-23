@@ -1,13 +1,11 @@
 #@ load("@ytt:data", "data")
 
-#@ if/end "grype-source-scan-task" not in data.values.excluded_blueprints:
+#@ if/end "grype-source-scanner-tekton-task" not in data.values.excluded_blueprints:
 ---
 apiVersion: tekton.dev/v1beta1
 kind: ClusterTask
 metadata:
-  name: grype-source-scan-task
-  labels:
-    apps.kadras.io/task: source-scan
+  name: grype-source-scanner
 spec:
   description: Task to scan application source code with Grype
   params:
@@ -33,7 +31,7 @@ spec:
         cd $(workspaces.source-dir.path)
         ./gradlew --no-daemon assemble
     - name: scan
-      image: anchore/grype:v0.50.2
+      image: anchore/grype:v0.54.0
       workingDir: $(workspaces.source-dir.path)
       args: ["dir:.", "$(params.grype-args[*])", "--config=/workspace/grype/grype.yml"]
       volumeMounts:

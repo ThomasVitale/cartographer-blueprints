@@ -1,0 +1,61 @@
+#@ load("@ytt:data", "data")
+
+#@ if/end "tekton-test-source-template" not in data.values.excluded_blueprints:
+---
+apiVersion: carto.run/v1alpha1
+kind: ClusterSourceTemplate
+metadata:
+  name: tekton-test-source-template
+  annotations:
+    doc: |
+      This templates consumes an application source repository and executes the configured Tekton
+      testing pipeline on every detected input change.
+spec:
+  params:
+    - name: pipelineName
+      default: testing-pipeline
+
+  urlPath: .status.pipelineSpec.tasks[0].params[0].value
+  revisionPath: .status.pipelineSpec.tasks[0].params[1].value
+  
+  lifecycle: tekton
+  
+  ytt: |
+    #@ load("@ytt:data", "data")
+
+    #@ def param(key):
+    #@   if not key in data.values.params:
+    #@     return None
+    #@   end
+    #@   return data.values.params[key]
+    #@ end
+
+    #@ def merge_labels(fixed_values):
+    #@   labels = {}
+    #@   if hasattr(data.values.workload.metadata, "labels"):
+    #@     labels.update(data.values.workload.metadata.labels)
+    #@   end
+    #@   labels.update(fixed_values)
+    #@   return labels
+    #@ end
+
+    ---
+    apiVersion: tekton.dev/v1beta1
+    kind: PipelineRun
+    metadata:
+      generateName: #@ data.values.workload.metadata.name + "-test-"
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "test" })
+    spec:
+      pipelineRef:
+        name: #@ data.values.params.pipelineName
+      params:
+      - name: source-url
+        value: #@ data.values.source.url
+      - name: source-revision
+        value: #@ data.values.source.revision
+      - name: source-subpath
+        #@ if hasattr(data.values.workload.spec.source, "subPath"):
+        value: #@ data.values.workload.spec.source.subPath
+        #@ else:
+        value: "."
+        #@ end
