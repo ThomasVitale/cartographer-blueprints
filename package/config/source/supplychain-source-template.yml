@@ -1,11 +1,15 @@
 #@ load("@ytt:data", "data")
 
-#@ if/end "source-template" not in data.values.excluded_blueprints:
+#@ if/end "supplychain-source-template" not in data.values.excluded_blueprints:
 ---
 apiVersion: carto.run/v1alpha1
 kind: ClusterSourceTemplate
 metadata:
-  name: source-template
+  name: supplychain-source-template
+  annotations:
+    doc: |
+      This templates consumes an application Git repository and uses it as the source
+      for triggering a supply chain on every code change.
 spec:
   params:
     - name: gitImplementation

@@ -6,6 +6,11 @@ apiVersion: carto.run/v1alpha1
 kind: ClusterTemplate
 metadata:
   name: config-writer-and-pull-requester-template
+  annotations:
+    doc: |
+      This templates consumes an application deployment configuration and executes the configured Tekton
+      task on every detected input change to push the configuration to a new branch and open a
+      pull request to be merged manually.
 spec:
   ytt: |
     #@ load("@ytt:data", "data")

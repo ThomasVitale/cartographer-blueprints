@@ -1,6 +1,6 @@
 #@ load("@ytt:data", "data")
 
-#@ if/end "commit-and-pr-task" not in data.values.excluded_blueprints:
+#@ if/end "commit-and-pr-tekton-task" not in data.values.excluded_blueprints:
 ---
 apiVersion: tekton.dev/v1beta1
 kind: ClusterTask
@@ -78,6 +78,8 @@ spec:
 
         set -o errexit
 
+        cd `mktemp -d`
+
         commit_branch="$(params.commit_branch)"
         if [ -z "$commit_branch" ]; then
           commit_branch=$(date +%s | base64)
@@ -92,8 +94,8 @@ spec:
         git_repository="$git_prefix/$(params.repository_owner)/$(params.repository_name).git"
 
         echo 'git clone --depth 1 -b "$commit_branch" "$git_repository" ./repo 2>&1 | sed "s|$git_prefix|REDACTED|g'
+        echo 'Check to see if the git clone failed. If so, retry.'
         git clone --depth 1 -b "$commit_branch" "$git_repository" ./repo 2>&1 | sed "s|$git_prefix|REDACTED|g"
-        echo 'if [ ${PIPESTATUS[0]} -ne 0 ]; then'
         if [ ${PIPESTATUS[0]} -ne 0 ]; then
           set -o xtrace
           cd ./repo
@@ -114,7 +116,7 @@ spec:
         echo '$(params.git_files)' | base64 --decode > files.json
         eval "$(cat files.json | jq -r 'to_entries | .[] | @sh "mkdir -p $(dirname \(.key)) && echo \(.value) > \(.key) && git add \(.key)"')"
 
-        git commit -m "$(params.git_commit_message)"  --allow-empty
+        git commit -m "$(params.git_commit_message)" --allow-empty
         git push origin $commit_branch
 
         echo "$commit_branch" > /workspaces/ws/commit_branch
@@ -129,6 +131,8 @@ spec:
 
         set -o errexit
         set -o pipefail
+
+        cd `mktemp -d`
 
         set +o xtrace # Avoid leaking secrets, echo sensitive lines
 

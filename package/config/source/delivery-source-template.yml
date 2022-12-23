@@ -6,6 +6,10 @@ apiVersion: carto.run/v1alpha1
 kind: ClusterSourceTemplate
 metadata:
   name: delivery-source-template
+  annotations:
+    doc: |
+      This templates consumes a configuration Git repository and uses it as the source
+      for triggering a delivery chain on every code change.
 spec:
   params:
     - name: gitImplementation
@@ -50,7 +54,7 @@ spec:
       name: #@ data.values.deliverable.metadata.name + "-delivery"
       labels: #@ merge_labels({ "app.kubernetes.io/component": "source" })
     spec:
-      interval: 15s
+      interval: 1m0s
       url: #@ data.values.deliverable.spec.source.git.url
       ref: #@ data.values.deliverable.spec.source.git.ref
       gitImplementation: #@ data.values.params.gitImplementation
@@ -69,7 +73,7 @@ spec:
       labels: #@ merge_labels({ "app.kubernetes.io/component": "source" })
     spec:
       serviceAccountName: #@ data.values.params.serviceAccount
-      interval: 15s
+      interval: 1m0s
       url: #@ "oci://" + oci_artifact[0]
       ref:
         tag: #@ oci_artifact[1]

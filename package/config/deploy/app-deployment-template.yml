@@ -6,6 +6,10 @@ apiVersion: carto.run/v1alpha1
 kind: ClusterDeploymentTemplate
 metadata:
   name: app-deployment-template
+  annotations:
+    doc: |
+      This templates consumes a deployment Git repository and uses it as the source
+      for a GitOps-based continuous deployment flow.
 spec:
   params:
     - name: serviceAccount
@@ -68,13 +72,13 @@ spec:
       name: #@ data.values.deliverable.metadata.name
       labels: #@ merge_labels({ "app.kubernetes.io/component": "deploy" })
     spec:
-      syncPeriod: 30s
+      syncPeriod: 10m0s
       serviceAccountName: #@ data.values.params.serviceAccount
       fetch:
         - http:
             url: #@ data.values.deployment.url or assert.fail("missing required deployment config url")
-            #@ if/end hasattr(data.values.params, "gitops_sub_path"):
-            subPath: #@ data.values.params.gitops_sub_path
+            #@ if/end hasattr(data.values.deliverable.spec.source, "subPath"):
+            subPath: #@ data.values.deliverable.spec.source.subPath
         - inline:
             paths:
               kapp-config.yml: #@ yaml.encode(kapp_config())

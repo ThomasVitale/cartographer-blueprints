@@ -1,0 +1,19 @@
+#@ load("@ytt:data", "data")
+
+#@ if/end "trivy-image-scanner-tekton-task" not in data.values.excluded_blueprints:
+---
+apiVersion: tekton.dev/v1beta1
+kind: ClusterTask
+metadata:
+  name: trivy-image-scanner
+spec:
+  description: Task to scan application image with Trivy
+  params:
+    - name: image
+    - name: trivy-args
+      default:
+        - "--ignore-unfixed"
+  steps:
+    - name: scan
+      image: aquasec/trivy:0.35.0
+      args: ["image", "$(params.trivy-args[*])", "$(params.image)"]

@@ -6,6 +6,10 @@ apiVersion: carto.run/v1alpha1
 kind: ClusterImageTemplate
 metadata:
   name: kpack-template
+  annotations:
+    doc: |
+      This templates consumes an application Git repository. On every code change,
+      it packages the application as a container image and publishes it to the configured registry.
 spec:
   params:
   - name: serviceAccount
@@ -16,6 +20,8 @@ spec:
     default: {}
   - name: kpackBindings
     default: []
+  - name: cacheVolumeSize
+    default: "2Gi"
 
   imagePath: .status.latestImage
 
@@ -100,4 +106,4 @@ spec:
         services: #@ data.values.params.kpackBindings
       cache:
         volume:
-          size: "2Gi"
+          size: #@ data.values.params.cacheVolumeSize
