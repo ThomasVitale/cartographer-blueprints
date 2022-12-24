@@ -1,11 +1,15 @@
 #@ load("@ytt:data", "data")
 
-#@ if/end "app-deploy-template" not in data.values.excluded_blueprints:
+#@ if/end "app-local-deployment-template" not in data.values.excluded_blueprints:
 ---
 apiVersion: carto.run/v1alpha1
 kind: ClusterTemplate
 metadata:
-  name: app-deploy-template
+  name: app-local-deployment-template
+  annotations:
+    doc: |
+      This templates consumes deployment configuration and uses it as the source
+      for a local continuous deployment flow.
 spec:
   params:
     - name: serviceAccount
@@ -38,22 +42,12 @@ spec:
 
     #@ def merge_labels(fixed_values):
     #@   labels = {}
-    #@   if hasattr(data.values.deliverable.metadata, "labels"):
-    #@     labels.update(data.values.deliverable.metadata.labels)
+    #@   if hasattr(data.values.workload.metadata, "labels"):
+    #@     labels.update(data.values.workload.metadata.labels)
     #@   end
     #@   labels.update(fixed_values)
     #@   return labels
     #@ end
-
-    #@ def/end knative_service():
-    ---
-    apiVersion: serving.knative.dev/v1
-    kind: Service
-    metadata:
-      name: #@ data.values.workload.metadata.name
-      labels: #@ merge_labels({ "app.kubernetes.io/component": "run", "carto.run/workload-name": data.values.workload.metadata.name })
-    spec:
-      template: #@ data.values.config
     
     #@ def/end kapp_config():
     ---
@@ -82,7 +76,7 @@ spec:
       fetch:
         - inline:
             paths:
-              service.yml: #@ yaml.encode(knative_service())
+              service.yml: #@ data.values.config["delivery.yml"]
               kapp-config.yml: #@ yaml.encode(kapp_config())
       template:
         - ytt: {}
