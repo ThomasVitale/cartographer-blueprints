@@ -1,11 +1,11 @@
 #@ load("@ytt:data", "data")
 
-#@ if/end "app-deployment-template" not in data.values.excluded_blueprints:
+#@ if/end "app-remote-deployment-template" not in data.values.excluded_blueprints:
 ---
 apiVersion: carto.run/v1alpha1
 kind: ClusterDeploymentTemplate
 metadata:
-  name: app-deployment-template
+  name: app-remote-deployment-template
   annotations:
     doc: |
       This templates consumes a deployment Git repository and uses it as the source

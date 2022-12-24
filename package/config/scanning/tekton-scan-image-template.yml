@@ -23,6 +23,13 @@ spec:
     #@ load("@ytt:assert", "assert")
     #@ load("@ytt:data", "data")
 
+    #@ def param(key):
+    #@   if not key in data.values.params:
+    #@     return None
+    #@   end
+    #@   return data.values.params[key]
+    #@ end
+
     #@ def merge_labels(fixed_values):
     #@   labels = {}
     #@   if hasattr(data.values.workload.metadata, "labels"):
