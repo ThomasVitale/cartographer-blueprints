@@ -12,17 +12,4 @@ spec:
   packageRef:
     refName: cert-manager.packages.kadras.io
     versionSelection:
-      constraints: 1.10.1+kadras.2
-  values:
-    - secretRef:
-        name: cert-manager-values
-
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: cert-manager-values
-  namespace: carvel-test
-stringData:
-  values.yaml: |
-    namespace: cert-manager
+      constraints: 1.10.2

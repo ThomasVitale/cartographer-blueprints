@@ -44,7 +44,7 @@ spec:
   shortDescription: A set of reusable blueprints for Cartographer.
   maintainers:
   - name: Thomas Vitale
-  providerName: Arktonix
+  providerName: Kadras
   categories:
   - developer experience
   - ci/cd

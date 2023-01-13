@@ -19,7 +19,7 @@ spec:
           - kbld: {}
       export:
       - imgpkgBundle:
-          image: ghcr.io/arktonix/cartographer-blueprints
+          image: ghcr.io/kadras-io/cartographer-blueprints
           useKbldImagesLock: true
         includePaths:
         - config
