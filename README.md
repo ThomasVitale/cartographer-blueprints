@@ -74,16 +74,16 @@ the application source code.
 
 ## Dependencies
 
-Cartographer Blueprints requires the Cartographer package to be already installed in the cluster. You can install it from the [Kadras package repository](https://github.com/arktonix/kadras-packages).
+Cartographer Blueprints requires the Cartographer package to be already installed in the cluster. You can install it from the [Kadras package repository](https://github.com/kadras-io/kadras-packages).
 
 ## Installation
 
-First, add the [Kadras package repository](https://github.com/arktonix/kadras-packages) to your Kubernetes cluster.
+First, add the [Kadras package repository](https://github.com/kadras-io/kadras-packages) to your Kubernetes cluster.
 
   ```shell
   kubectl create namespace kadras-packages
   kctrl package repository add -r kadras-repo \
-    --url ghcr.io/arktonix/kadras-packages \
+    --url ghcr.io/kadras-io/kadras-packages \
     -n kadras-packages
   ```
 
@@ -92,7 +92,7 @@ Then, install the Cartographer Blueprints package.
   ```shell
   kctrl package install -i cartographer-blueprints \
     -p cartographer-blueprints.packages.kadras.io \
-    -v 0.3.0 \
+    -v 0.3.1 \
     -n kadras-packages
   ```
 
@@ -132,7 +132,7 @@ Then, reference it from the `kctrl` command when installing or upgrading the pac
   ```shell
   kctrl package install -i cartographer-blueprints \
     -p cartographer-blueprints.packages.kadras.io \
-    -v 0.3.0 \
+    -v 0.3.1 \
     -n kadras-packages \
     --values-file values.yml
   ```
@@ -157,13 +157,13 @@ You can also update an existing package with a newer `values.yml` file.
 
 ## Other
 
-The recommended way of installing the Cartographer Blueprints package is via the [Kadras package repository](https://github.com/arktonix/kadras-packages). If you prefer not using the repository, you can install the package by creating the necessary Carvel `PackageMetadata` and `Package` resources directly using [`kapp`](https://carvel.dev/kapp/docs/latest/install) or `kubectl`.
+The recommended way of installing the Cartographer Blueprints package is via the [Kadras package repository](https://github.com/kadras-io/kadras-packages). If you prefer not using the repository, you can install the package by creating the necessary Carvel `PackageMetadata` and `Package` resources directly using [`kapp`](https://carvel.dev/kapp/docs/latest/install) or `kubectl`.
 
   ```shell
   kubectl create namespace kadras-packages
   kapp deploy -a cartographer-blueprints-package -n kadras-packages -y \
-    -f https://github.com/arktonix/cartographer-blueprints/releases/latest/download/metadata.yml \
-    -f https://github.com/arktonix/cartographer-blueprints/releases/latest/download/package.yml
+    -f https://github.com/kadras-io/cartographer-blueprints/releases/latest/download/metadata.yml \
+    -f https://github.com/kadras-io/cartographer-blueprints/releases/latest/download/package.yml
   ```
 
 ## Support and Documentation
