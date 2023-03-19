@@ -10,15 +10,12 @@ metadata:
     apps.kadras.io/deliverable-type: web
   annotations:
     doc: |
-      This templates generates a Deliverable resource for the current Workload.
+      Generates a Deliverable resource for the current Workload.
 spec:
-  params:
-    - name: registry
-      default: {}
 
   ytt: |
-    #@ load("@ytt:data", "data")
     #@ load("@ytt:assert", "assert")
+    #@ load("@ytt:data", "data")
 
     #@ def param(key):
     #@   if not key in data.values.params:
@@ -48,16 +45,16 @@ spec:
     #@   ]) + ":" + data.values.workload.metadata.uid
     #@ end
 
-    #@ def is_gitops():
-    #@   if 'gitops_server_address' in data.values.params and 'gitops_repository_owner' in data.values.params and 'gitops_repository_name' in data.values.params:
-    #@     return True
+    #@ def is_gitops_enabled():
+    #@   if param("gitops")["strategy"] == "none":
+    #@     return False
     #@   end
-    #@   if 'gitops_server_address' in data.values.params or 'gitops_repository_owner' in data.values.params or 'gitops_repository_name' in data.values.params:
-    #@     'gitops_server_address' in data.values.params or assert.fail("missing param: gitops_server_address")
-    #@     'gitops_repository_owner' in data.values.params or assert.fail("missing param: gitops_repository_owner")
-    #@     'gitops_repository_name' in data.values.params or assert.fail("missing param: gitops_repository_name")
+    #@   if 'server_address' in param("gitops") or 'repository.owner' in param("gitops") or 'repository.name' in param("gitops"):
+    #@     'server_address' in param("gitops") or assert.fail("missing param: gitops.server_address")
+    #@     'owner' in param("gitops")["repository"] or assert.fail("missing param: gitops.repository.owner")
+    #@     'name' in param("gitops")["repository"] or assert.fail("missing param: gitops.repository.name")
     #@   end
-    #@   return False
+    #@   return True
     #@ end
 
     #@ def strip_trailing_slash(some_string):
@@ -68,11 +65,11 @@ spec:
     #@ end
 
     #@ def git_repository():
-    #@   strip_trailing_slash(data.values.params.gitops_server_address)
+    #@   strip_trailing_slash(data.values.params.gitops.server_address)
     #@   return "/".join([
-    #@     strip_trailing_slash(data.values.params.gitops_server_address),
-    #@     strip_trailing_slash(data.values.params.gitops_repository_owner),
-    #@     data.values.params.gitops_repository_name,
+    #@     strip_trailing_slash(data.values.params.gitops.server_address),
+    #@     strip_trailing_slash(data.values.params.gitops.repository.owner),
+    #@     data.values.params.gitops.repository.name,
     #@   ]) + ".git"
     #@ end
 
@@ -86,20 +83,20 @@ spec:
       #@ if/end hasattr(data.values.workload.spec, "serviceAccountName"):
       serviceAccountName: #@ data.values.workload.spec.serviceAccountName
 
-      #@ if/end is_gitops():
+      #@ if/end is_gitops_enabled():
       params:
-        - name: gitops_access_secret
-          value: #@ param("gitops_access_secret")
+        - name: gitAccessSecret
+          value: #@ param("gitAccessSecret")
 
       source:
-        #@ if/end is_gitops():
+        #@ if/end is_gitops_enabled():
         git:
           url: #@ git_repository()
           ref:
-            branch: #@ param("gitops_branch")
+            branch: #@ param("gitops")["target_branch"]
 
-        #@ if/end not is_gitops():
+        #@ if/end not is_gitops_enabled():
         image: #@ image_bundle()
       
-      #@ if/end is_gitops():
+      #@ if/end is_gitops_enabled():
       subPath: #@ "config/" + data.values.workload.metadata.namespace + "/" + data.values.workload.metadata.name

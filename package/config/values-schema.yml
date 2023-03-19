@@ -1,6 +1,6 @@
 #@data/values-schema
 ---
 
-#@schema/desc "A list of blueprints and manifests to esclude from being applied."
+#@schema/desc "A list of blueprints and manifests to esclude from being created in the cluster."
 excluded_blueprints:
   - ""

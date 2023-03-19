@@ -8,28 +8,23 @@ metadata:
   name: image-writer
 spec:
   description: |-
-    A task that writes a given set of files (provided as a base64-encoded JSON)
-    to the specified OCI registry as an image, making use of the imgpkg bundle format.
+    Consumes application deployment configuration files as a Base64-encoded JSON and
+    pushes them to an OCI registry as an image bundle (imgpkg format).
   params:
     - name: bundle
-      description: Name of the registry + repository to push the bundle to
+      description: The fully qualified name of the OCI repository where to push the configuration files.
       type: string
     - name: files
+      description: The configuration files to push to the OCI registry, provided as a Base64-encoded JSON map.
       type: string
-      description: >
-        Base64-encoded JSON map of files to write to the OCI registry, for example -
-        eyAiUkVBRE1FLm1kIjogIiMgUmVhZG1lIiB9
     - name: ca_cert_data
+      description: PEM-encoded certificate data for the OCI Registry where to push the configuration files.
       type: string
       default: ""
-      description: >
-        PEM-encoded certificate data for the OCI registry where the files
-        will be pushed to.
   steps:
     - name: main
-      image: paketobuildpacks/build:base
-      securityContext:
-        runAsUser: 0
+      image: paketobuildpacks/build-jammy-base:0.1.46
+      workingDir: /tekton/home
       script: |
         #!/usr/bin/env bash
 

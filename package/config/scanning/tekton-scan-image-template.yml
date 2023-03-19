@@ -8,8 +8,8 @@ metadata:
   name: tekton-scan-image-template
   annotations:
     doc: |
-      This templates consumes an application container image and executes a Tekton
-      scanning task on every detected input change, using the configured vulnerability scanner.
+      Consumes an application container image and executes a Tekton scanning task
+      on every detected input change, using the configured vulnerability scanner.
 spec:
   params:
     - name: scannerName
@@ -46,7 +46,7 @@ spec:
     #@ end
 
     ---
-    apiVersion: tekton.dev/v1beta1
+    apiVersion: tekton.dev/v1
     kind: TaskRun
     metadata:
       generateName: #@ data.values.workload.metadata.name + "-image-scanner-"

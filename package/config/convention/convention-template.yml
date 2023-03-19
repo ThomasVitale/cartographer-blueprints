@@ -8,9 +8,8 @@ metadata:
   name: convention-template
   annotations:
     doc: |
-      This templates uses information about the workload and the container image
-      to build a PodIntent object on which all registered Cartographer Conventions
-      will be applied. It returns a PodTemplateSpec.
+      Uses information about the workload and the container image to build a PodIntent object
+      on which all registered Cartographer Conventions will be applied. It returns a PodTemplateSpec.
 spec:
   params:
     - name: serviceAccount
@@ -23,21 +22,12 @@ spec:
 
   ytt: |
     #@ load("@ytt:data", "data")
-    
+
     #@ def param(key):
     #@   if not key in data.values.params:
     #@     return None
     #@   end
     #@   return data.values.params[key]
-    #@ end
-
-    #@ def merge_labels(fixed_values):
-    #@   labels = {}
-    #@   if hasattr(data.values.workload.metadata, "labels"):
-    #@     labels.update(data.values.workload.metadata.labels)
-    #@   end
-    #@   labels.update(fixed_values)
-    #@   return labels
     #@ end
 
     #@ def merge_annotations(fixed_values):
@@ -49,14 +39,17 @@ spec:
     #@   return annotations
     #@ end
 
+    #@ def merge_labels(fixed_values):
+    #@   labels = {}
+    #@   if hasattr(data.values.workload.metadata, "labels"):
+    #@     labels.update(data.values.workload.metadata.labels)
+    #@   end
+    #@   labels.update(fixed_values)
+    #@   return labels
+    #@ end
+
     #@ def build_fixed_annotations():
     #@   fixed_annotations = {}
-    #@   if param("debug"):
-    #@     fixed_annotations["apps.kadras.io/debug"] = param("debug")
-    #@   end
-    #@   if param("live-update"):
-    #@     fixed_annotations["apps.kadras.io/live-update"] = param("live-update")
-    #@   end
     #@   if param("debug") or param("live-update"):
     #@     fixed_annotations["autoscaling.knative.dev/min-scale"] = "1"
     #@     fixed_annotations["autoscaling.knative.dev/max-scale"] = "1"

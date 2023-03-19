@@ -8,8 +8,8 @@ metadata:
   name: tekton-scan-source-template
   annotations:
     doc: |
-      This templates consumes an application source repository and executes a Tekton
-      scanning task on every detected input change, using the configured vulnerability scanner.
+      Consumes an application source repository and executes a Tekton scanning task
+      on every detected input change, using the configured vulnerability scanner.
 spec:
   params:
     - name: scannerName
@@ -47,7 +47,7 @@ spec:
     #@ end
 
     ---
-    apiVersion: tekton.dev/v1beta1
+    apiVersion: tekton.dev/v1
     kind: TaskRun
     metadata:
       generateName: #@ data.values.workload.metadata.name + "-source-scanner-"

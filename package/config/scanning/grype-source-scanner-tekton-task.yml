@@ -7,7 +7,7 @@ kind: ClusterTask
 metadata:
   name: grype-source-scanner
 spec:
-  description: Task to scan application source code with Grype
+  description: Scans a given application source code directory with Grype.
   params:
     - name: source-url
     - name: source-revision
@@ -22,7 +22,7 @@ spec:
       mountPath: /workspace/source-dir
   steps:
     - name: prepare
-      image: gradle
+      image: cgr.dev/chainguard/jdk:openjdk-17
       script: |-
         cd `mktemp -d`
         curl -SL $(params.source-url) | tar xvz -m
@@ -31,7 +31,7 @@ spec:
         cd $(workspaces.source-dir.path)
         ./gradlew --no-daemon assemble
     - name: scan
-      image: anchore/grype:v0.54.0
+      image: anchore/grype:v0.59.1
       workingDir: $(workspaces.source-dir.path)
       args: ["dir:.", "$(params.grype-args[*])", "--config=/workspace/grype/grype.yml"]
       volumeMounts:

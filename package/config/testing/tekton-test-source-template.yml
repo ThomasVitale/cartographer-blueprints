@@ -8,7 +8,7 @@ metadata:
   name: tekton-test-source-template
   annotations:
     doc: |
-      This templates consumes an application source repository and executes the configured Tekton
+      Consumes an application source repository and executes the configured Tekton
       testing pipeline on every detected input change.
 spec:
   params:
@@ -40,7 +40,7 @@ spec:
     #@ end
 
     ---
-    apiVersion: tekton.dev/v1beta1
+    apiVersion: tekton.dev/v1
     kind: PipelineRun
     metadata:
       generateName: #@ data.values.workload.metadata.name + "-test-"

@@ -8,12 +8,9 @@ metadata:
   name: app-remote-deployment-template
   annotations:
     doc: |
-      This templates consumes a deployment Git repository and uses it as the source
+      Consumes an application deployment Git repository and uses it as the source
       for a GitOps-based continuous deployment flow.
 spec:
-  params:
-    - name: serviceAccount
-      default: default
   
   healthRule:
     multiMatch:

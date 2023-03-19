@@ -8,43 +8,39 @@ metadata:
   name: git-writer
 spec:
   description: |-
-    A task that writes a given set of files (provided as a base64-encoded JSON)
-    to the specified Git repository, under a given path.
+    Consumes application deployment configuration files as a Base64-encoded JSON and
+    pushes them to a Git repository under a given path.
   params:
     - name: git_repository
-      description: The Git repository path
+      description: The Git repository where to push the configuration files.
       type: string
     - name: git_branch
-      description: The Git branch to read and write
+      description: The Git branch where to push the configuration files.
       type: string
       default: "main"
     - name: git_user_email
-      description: User email address
+      description: The email of the user interacting with the Git repository.
       type: string
       default: "cartographer@kadras.io"
     - name: git_user_name
-      description: User name
+      description: The name of the user interacting with the Git repository.
       type: string
       default: "cartographer"
     - name: git_commit_message
-      description: Message for the Git commit
+      description: The commit message to use when pushing the configuration files to the Git repository.
       type: string
       default: "Update from Cartographer"
     - name: sub_path
-      description: Sub directory in which to write
+      description: The path in the Git repository where to write the configuration files.
       type: string
       default: "config"
     - name: git_files
+      description: The configuration files to push to the Git repository, provided as a Base64-encoded JSON map.
       type: string
-      description: >
-        Base64-encoded JSON map of files to write to the Git repository, for example -
-        eyAiUkVBRE1FLm1kIjogIiMgUmVhZG1lIiB9
   steps:
     - name: git-clone-and-push
-      image: paketobuildpacks/build:base
-      securityContext:
-        runAsUser: 0
-      workingDir: /root
+      image: paketobuildpacks/build-jammy-base:0.1.46
+      workingDir: /tekton/home
       script: |
         #!/usr/bin/env bash
 

@@ -7,7 +7,7 @@ kind: ClusterTask
 metadata:
   name: trivy-image-scanner
 spec:
-  description: Task to scan application image with Trivy
+  description: Scans a given OCI image with Trivy.
   params:
     - name: image
     - name: trivy-args
@@ -15,5 +15,5 @@ spec:
         - "--ignore-unfixed"
   steps:
     - name: scan
-      image: aquasec/trivy:0.35.0
+      image: aquasec/trivy:0.38.3
       args: ["image", "$(params.trivy-args[*])", "$(params.image)"]
