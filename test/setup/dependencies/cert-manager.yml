@@ -2,14 +2,14 @@
 apiVersion: packaging.carvel.dev/v1alpha1
 kind: PackageInstall
 metadata:
-  name: tekton-pipelines
-  namespace: carvel-test
+  name: cert-manager
+  namespace: tests
   annotations:
-    kapp.k14s.io/change-group: tekton-pipelines
+    kapp.k14s.io/change-group: cert-manager
     kapp.k14s.io/change-rule.serviceaccount: delete before deleting serviceaccount
 spec:
   serviceAccountName: kadras-install-sa
   packageRef:
-    refName: tekton-pipelines.packages.kadras.io
+    refName: cert-manager.packages.kadras.io
     versionSelection:
-      constraints: 0.43.1
+      constraints: 1.11.0+kadras.2

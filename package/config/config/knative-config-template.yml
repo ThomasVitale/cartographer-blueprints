@@ -8,8 +8,8 @@ metadata:
   name: knative-config-template
   annotations:
     doc: |
-      This templates consumes a PodTemplateSpec and returns a ConfigMap
-      which contains a "delivery.yml" manifest for a Knative Service.
+      Consumes a PodTemplateSpec and returns a ConfigMap which contains
+      a "delivery.yml" manifest for a Knative Service.
 spec:
   configPath: .data
 

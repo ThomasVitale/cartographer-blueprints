@@ -8,71 +8,103 @@ metadata:
   name: commit-and-pr
 spec:
   description: |-
-    A task that writes a given set of files (provided as a base64-encoded JSON)
-    to the specified Git repository, under a given path. A pull request is then opened
-    to merge the changes into the specified base branch.
+    Consumes application deployment configuration files as a Base64-encoded JSON,
+    pushes them to a Git repository under a given path, and opens a pull request
+    to merge the changes into a given target branch.
   params:
     - name: repository_owner
-      description: The owner of the Git repository, either an organisation or a username
+      description: The owner of the Git repository (username or organization name).
       type: string
     - name: repository_name
-      description: The name of the Git repository
+      description: The name of the Git repository.
       type: string
     - name: commit_branch
+      description: The branch to use to open a pull request. If empty, a random name is generated.
       type: string
-      description: The name of the branch where desired changes are implemented
     - name: git_user_email
-      description: User email address
+      description: The email of the user interacting with the Git repository.
       type: string
       default: "cartographer@kadras.io"
     - name: git_user_name
-      description: User name
+      description: The name of the user interacting with the Git repository.
       type: string
       default: "cartographer"
     - name: git_commit_message
-      description: Message for the Git commit
+      description: The commit message to use when pushing configuration changes to Git.
       type: string
       default: "Update from Cartographer"
     - name: git_files
+      description: The configuration files to push to the Git repository, provided as a Base64-encoded JSON map.
       type: string
-      description: >
-        Base64-encoded JSON map of files to write to the Git repository, for example -
-        eyAiUkVBRE1FLm1kIjogIiMgUmVhZG1lIiB9
     - name: git_server_address
       type: string
-      description: The Git server location
+      description: The location of the server hosting the specified Git repository.
       default: https://github.com
     - name: git_server_kind
       type: string
-      description: The Git server kind (e.g. github, gitlab, gitea, etc)
+      description: The type of Git server where to open the pull request (e.g. github, gitlab, gitea).
       default: github
     - name: pull_request_title
       type: string
-      description: The title of the pull request
+      description: The title of the pull request.
     - name: pull_request_body
       type: string
-      description: The message body of the pull request
+      description: The message body of the pull request.
       default: ""
     - name: base_branch
       type: string
-      description: The name of the branch the desired changes should be pulled in to
+      description: The target branch where to push configuration changes.
       default: main
     - name: sub_path
-      description: Sub directory in which to write
+      description: The path in the Git repository where to write the configuration files.
       type: string
       default: "config"
   results:
     - name: pr-url
-      description: The url of the successfully created pull request
+      description: The URL of the successfully created pull request.
   workspaces:
     - name: ws
       mountPath: /workspaces/ws
   steps:
+    - name: ensure-base-branch-exists
+      image: paketobuildpacks/build-jammy-base:0.1.46
+      workingDir: /tekton/home
+      script: |
+        #!/usr/bin/env bash
+
+        set -o errexit
+        set -o pipefail
+
+        cd `mktemp -d`
+
+        set +o xtrace # Avoid leaking secrets, echo sensitive lines
+
+        echo 'git_prefix=$(cat $(credentials.path)/.git-credentials)'
+        git_prefix=$(cat $(credentials.path)/.git-credentials)
+
+        echo 'git_repository="$git_prefix/$(params.repository_owner)/$(params.repository_name).git"'
+        git_repository="$git_prefix/$(params.repository_owner)/$(params.repository_name).git"
+
+        echo 'git clone --depth 1 "$git_repository" ./repo 2>&1 | sed "s|$git_prefix|REDACTED|g'
+        git clone --depth 1 "$git_repository" ./repo 2>&1 | sed "s|$git_prefix|REDACTED|g"
+
+        set -o xtrace
+        cd ./repo
+
+        if git ls-remote --exit-code --heads origin "$(params.base_branch)"; then
+          echo "branch exists"
+        else
+          git checkout --orphan "$(params.base_branch)"
+          git rm --cached . -r || true
+          git config user.email "$(params.git_user_email)"
+          git config user.name "$(params.git_user_name)"
+          git commit -m "Initialize branch" --allow-empty
+          git push origin $(params.base_branch)
+        fi
+
     - name: git-clone-and-push
-      image: paketobuildpacks/build:base
-      securityContext:
-        runAsUser: 0
-      workingDir: /root
+      image: paketobuildpacks/build-jammy-base:0.1.46
+      workingDir: /tekton/home
       script: |
         #!/usr/bin/env bash
 
@@ -96,7 +128,7 @@ spec:
         echo 'git clone --depth 1 -b "$commit_branch" "$git_repository" ./repo 2>&1 | sed "s|$git_prefix|REDACTED|g'
         echo 'Check to see if the git clone failed. If so, retry.'
         git clone --depth 1 -b "$commit_branch" "$git_repository" ./repo 2>&1 | sed "s|$git_prefix|REDACTED|g"
-        if [ ${PIPESTATUS[0]} -ne 0 ]; then
+        if [ ${PIPESTATUS[0]} -eq 0 ]; then
           set -o xtrace
           cd ./repo
         else
@@ -120,44 +152,6 @@ spec:
         git push origin $commit_branch
 
         echo "$commit_branch" > /workspaces/ws/commit_branch
-
-    - name: ensure-base-branch-exists
-      image: paketobuildpacks/build:base
-      securityContext:
-        runAsUser: 0
-      workingDir: /root
-      script: |
-        #!/usr/bin/env bash
-
-        set -o errexit
-        set -o pipefail
-
-        cd `mktemp -d`
-
-        set +o xtrace # Avoid leaking secrets, echo sensitive lines
-
-        echo 'git_prefix=$(cat $(credentials.path)/.git-credentials)'
-        git_prefix=$(cat $(credentials.path)/.git-credentials)
-
-        echo 'git_repository="$git_prefix/$(params.repository_owner)/$(params.repository_name).git"'
-        git_repository="$git_prefix/$(params.repository_owner)/$(params.repository_name).git"
-
-        echo 'git clone --depth 1 -b "$commit_branch" "$git_repository" ./repo 2>&1 | sed "s|$git_prefix|REDACTED|g'
-        git clone --depth 1 "$git_repository" ./repo 2>&1 | sed "s|$git_prefix|REDACTED|g"
-
-        set -o xtrace
-        cd ./repo
-
-        if git show-ref --verify --quiet "refs/heads/$(params.base_branch)"; then
-          echo "branch exists"
-        else
-          git checkout --orphan "$(params.base_branch)"
-          git rm --cached . -r || true
-          git config user.email "$(params.git_user_email)"
-          git config user.name "$(params.git_user_name)"
-          git commit -m "Initialize branch" --allow-empty
-          git push origin $(params.base_branch)
-        fi
 
     - name: open-pr
       image: ghcr.io/jenkins-x/jx-scm

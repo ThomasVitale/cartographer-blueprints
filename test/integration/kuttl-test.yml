@@ -1,0 +1,39 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestSuite
+testDirs:
+- ./test/integration
+manifestDirs:
+- ./test/setup/assets
+parallel: 1
+startKIND: true
+kindContext: integration
+kindNodeCache: true
+timeout: 120
+artifactsDir: /tmp/kuttl-artifacts
+commands:
+  - script: |
+      kapp deploy -a kapp-controller -y \
+        -f https://github.com/carvel-dev/kapp-controller/releases/latest/download/release.yml
+  - script: |
+      kubectl config set-context --current --namespace=tests && \
+      kapp deploy -a secretgen-controller-package -y \
+        -f https://github.com/carvel-dev/secretgen-controller/releases/download/v0.14.2/package.yml \
+        -f https://github.com/carvel-dev/secretgen-controller/releases/download/v0.14.2/package-metadata.yml
+  - script: |
+      kubectl config set-context --current --namespace=tests && \
+      kapp deploy -a cert-manager-package -y \
+        -f https://github.com/kadras-io/package-for-cert-manager/releases/download/v1.11.0%2Bkadras.2/package.yml \
+        -f https://github.com/kadras-io/package-for-cert-manager/releases/download/v1.11.0%2Bkadras.2/metadata.yml
+  - script: |
+      kubectl config set-context --current --namespace=tests && \
+      kapp deploy -a cartographer-package -y \
+        -f https://github.com/vmware-tanzu/package-for-cartographer/releases/download/v0.7.1/package.yaml \
+        -f https://github.com/vmware-tanzu/package-for-cartographer/releases/download/v0.7.1/package-metadata.yaml
+  - script: |
+      kubectl config set-context --current --namespace=tests && \
+      kapp deploy -a tekton-pipelines-package -y \
+        -f https://github.com/kadras-io/package-for-tekton-pipelines/releases/download/v0.45.0%2Bkadras.1/package.yml \
+        -f https://github.com/kadras-io/package-for-tekton-pipelines/releases/download/v0.45.0%2Bkadras.1/metadata.yml
+  - script: |
+      kubectl config set-context --current --namespace=tests && \
+      kapp deploy -a dependencies -y -f ./test/setup/dependencies

@@ -8,14 +8,9 @@ metadata:
   name: delivery-source-template
   annotations:
     doc: |
-      This templates consumes a configuration Git repository and uses it as the source
-      for triggering a delivery chain on every code change.
+      Consumes a configuration Git repository via a Git server or OCI registry, and use it as
+      the source for triggering a delivery chain on every code change.
 spec:
-  params:
-    - name: gitImplementation
-      default: go-git
-    - name: serviceAccount
-      default: default
 
   urlPath: .status.artifact.url
   revisionPath: .status.artifact.revision
@@ -42,13 +37,9 @@ spec:
     #@   return labels
     #@ end
 
-    #@ if hasattr(data.values.deliverable.spec.source, "image"):
-    #@   oci_artifact = data.values.deliverable.spec.source.image.split(":", 1)
-    #@ end
-
     #@ if/end hasattr(data.values.deliverable.spec.source, "git"):
     ---
-    apiVersion: source.toolkit.fluxcd.io/v1beta1
+    apiVersion: source.toolkit.fluxcd.io/v1beta2
     kind: GitRepository
     metadata:
       name: #@ data.values.deliverable.metadata.name + "-delivery"
@@ -57,12 +48,13 @@ spec:
       interval: 1m0s
       url: #@ data.values.deliverable.spec.source.git.url
       ref: #@ data.values.deliverable.spec.source.git.ref
-      gitImplementation: #@ data.values.params.gitImplementation
-      ignore: |
-        !.git
-      #@ if/end param("gitops_access_secret"):
+      #@ if/end param("gitAccessSecret"):
       secretRef:
-        name: #@ param("gitops_access_secret")
+        name: #@ param("gitAccessSecret")
+
+    #@ if hasattr(data.values.deliverable.spec.source, "image"):
+    #@   oci_artifact = data.values.deliverable.spec.source.image.split(":", 1)
+    #@ end
 
     #@ if/end hasattr(data.values.deliverable.spec.source, "image"):
     ---

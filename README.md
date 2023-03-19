@@ -1,14 +1,82 @@
 # Cartographer Blueprints
 
-<a href="https://slsa.dev/spec/v0.1/levels"><img src="https://slsa.dev/images/gh-badge-level3.svg" alt="The SLSA Level 3 badge"></a>
+![Test Workflow](https://github.com/kadras-io/cartographer-blueprints/actions/workflows/test.yml/badge.svg)
+![Release Workflow](https://github.com/kadras-io/cartographer-blueprints/actions/workflows/release.yml/badge.svg)
+[![The SLSA Level 3 badge](https://slsa.dev/images/gh-badge-level3.svg)](https://slsa.dev/spec/v0.1/levels)
+[![The Apache 2.0 license badge](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Follow us on Twitter](https://img.shields.io/static/v1?label=Twitter&message=Follow&color=1DA1F2)](https://twitter.com/kadrasIO)
 
-This project provides a [Carvel package](https://carvel.dev/kapp-controller/docs/latest/packaging) with a set of reusable blueprints for [Cartographer](https://cartographer.sh), a Kubernetes-native framework to build paved paths to production.
+A Carvel package providing a set of reusable blueprints to build Kubernetes-native paved paths to production using [Cartographer](https://cartographer.sh).
 
 It includes blueprints to deal with several activities like source code watching, testing, building, scanning, configuring, delivering, and deploying.
 
-## Description
+## 🚀&nbsp; Getting Started
 
-The package provides Cartographer blueprints to design paths to production on Kubernetes.
+### Prerequisites
+
+* Kubernetes 1.24+
+* Carvel [`kctrl`](https://carvel.dev/kapp-controller/docs/latest/install/#installing-kapp-controller-cli-kctrl) CLI.
+* Carvel [kapp-controller](https://carvel.dev/kapp-controller) deployed in your Kubernetes cluster. You can install it with Carvel [`kapp`](https://carvel.dev/kapp/docs/latest/install) (recommended choice) or `kubectl`.
+
+  ```shell
+  kapp deploy -a kapp-controller -y \
+    -f https://github.com/carvel-dev/kapp-controller/releases/latest/download/release.yml
+  ```
+
+### Dependencies
+
+Cartographer Blueprints requires the [Cartographer](https://github.com/vmware-tanzu/package-for-cartographer) package. You can install it from the [Kadras package repository](https://github.com/kadras-io/kadras-packages).
+
+### Installation
+
+Add the Kadras [package repository](https://github.com/kadras-io/kadras-packages) to your Kubernetes cluster:
+
+  ```shell
+  kubectl create namespace kadras-packages
+  kctrl package repository add -r kadras-packages \
+    --url ghcr.io/kadras-io/kadras-packages \
+    -n kadras-packages
+  ```
+
+<details><summary>Installation without package repository</summary>
+The recommended way of installing the Cartographer Blueprints package is via the Kadras <a href="https://github.com/kadras-io/kadras-packages">package repository</a>. If you prefer not using the repository, you can add the package definition directly using <a href="https://carvel.dev/kapp/docs/latest/install"><code>kapp</code></a> or <code>kubectl</code>.
+
+  ```shell
+  kubectl create namespace kadras-packages
+  kapp deploy -a cartographer-blueprints-package -n kadras-packages -y \
+    -f https://github.com/kadras-io/cartographer-blueprints/releases/latest/download/metadata.yml \
+    -f https://github.com/kadras-io/cartographer-blueprints/releases/latest/download/package.yml
+  ```
+</details>
+
+Install the Cartographer Blueprints package:
+
+  ```shell
+  kctrl package install -i cartographer-blueprints \
+    -p cartographer-blueprints.packages.kadras.io \
+    -v ${VERSION} \
+    -n kadras-packages
+  ```
+
+> **Note**
+> You can find the `${VERSION}` value by retrieving the list of package versions available in the Kadras package repository installed on your cluster.
+> 
+>   ```shell
+>   kctrl package available list -p cartographer-blueprints.packages.kadras.io -n kadras-packages
+>   ```
+
+Verify the installed packages and their status:
+
+  ```shell
+  kctrl package installed list -n kadras-packages
+  ```
+
+## 📙&nbsp; Documentation
+
+Documentation, tutorials and examples for this package are available in the [docs](docs) folder.
+For documentation specific to Cartographer, check out [cartographer.sh](https://cartographer.sh).
+
+The package provides several blueprints to design paths to production on Kubernetes using Cartographer.
 
 ### Source (Flux)
 
@@ -17,13 +85,11 @@ The package provides Cartographer blueprints to design paths to production on Ku
 
 ### Image (kpack)
 
-* `kpack-template`: it uses kpack, Cloud Native Buildpacks, and Paketo to transform application
-source code into a production-ready container image.
+* `kpack-template`: it uses kpack, Cloud Native Buildpacks, and Paketo to transform application source code into a production-ready container image.
 
 ### Test (Tekton)
 
-* `tekton-test-source-template`: it runs an instance of a Tekton pipeline to test
-the application source code.
+* `tekton-test-source-template`: it runs an instance of a Tekton pipeline to test the application source code.
 
 ### Scan (Grype and Trivy)
 
@@ -59,127 +125,53 @@ the application source code.
 
 ### Deploy (Carvel)
 
-* `app-deployment-template`: it runs an application packaged as a Carvel `App`.
+* `app-local-deployment-template`: it runs an application packaged as a Carvel `App` as part of a local workflow.
+* `app-remote-deployment-template`: it runs an application packaged as a Carvel `App` as part of a remote workflow.
 
-## Prerequisites
+## 🎯&nbsp; Configuration
 
-* Kubernetes 1.24+
-* Carvel [`kctrl`](https://carvel.dev/kapp-controller/docs/latest/install/#installing-kapp-controller-cli-kctrl) CLI.
-* Carvel [kapp-controller](https://carvel.dev/kapp-controller) deployed in your Kubernetes cluster. You can install it with Carvel [`kapp`](https://carvel.dev/kapp/docs/latest/install) (recommended choice) or `kubectl`.
-
-  ```shell
-  kapp deploy -a kapp-controller -y \
-    -f https://github.com/vmware-tanzu/carvel-kapp-controller/releases/latest/download/release.yml
-  ```
-
-## Dependencies
-
-Cartographer Blueprints requires the Cartographer package to be already installed in the cluster. You can install it from the [Kadras package repository](https://github.com/kadras-io/kadras-packages).
-
-## Installation
-
-First, add the [Kadras package repository](https://github.com/kadras-io/kadras-packages) to your Kubernetes cluster.
-
-  ```shell
-  kubectl create namespace kadras-packages
-  kctrl package repository add -r kadras-repo \
-    --url ghcr.io/kadras-io/kadras-packages \
-    -n kadras-packages
-  ```
-
-Then, install the Cartographer Blueprints package.
-
-  ```shell
-  kctrl package install -i cartographer-blueprints \
-    -p cartographer-blueprints.packages.kadras.io \
-    -v 0.3.1 \
-    -n kadras-packages
-  ```
-
-### Verification
-
-You can verify the list of installed Carvel packages and their status.
-
-  ```shell
-  kctrl package installed list -n kadras-packages
-  ```
-
-### Version
-
-You can get the list of Cartographer Blueprints versions available in the Kadras package repository.
-
-  ```shell
-  kctrl package available list -p cartographer-blueprints.packages.kadras.io -n kadras-packages
-  ```
-
-## Configuration
-
-The Cartographer Blueprints package has the following configurable properties.
-
-| Config | Default | Description |
-|-------|-------------------|-------------|
-| `excluded_blueprints` | `[]` | A list of blueprints and manifests to esclude from being applied. |
-
-You can define your configuration in a `values.yml` file.
+The Cartographer Blueprints package can be customized via a `values.yml` file.
 
   ```yaml
   excluded_blueprints:
     - "config-template"
   ```
 
-Then, reference it from the `kctrl` command when installing or upgrading the package.
+Reference the `values.yml` file from the `kctrl` command when installing or upgrading the package.
 
   ```shell
   kctrl package install -i cartographer-blueprints \
     -p cartographer-blueprints.packages.kadras.io \
-    -v 0.3.1 \
+    -v ${VERSION} \
     -n kadras-packages \
     --values-file values.yml
   ```
 
-## Upgrading
+### Values
 
-You can upgrade an existing package to a newer version using `kctrl`.
+The Cartographer Blueprints package has the following configurable properties.
 
-  ```shell
-  kctrl package installed update -i cartographer-blueprints \
-    -v <new-version> \
-    -n kadras-packages
-  ```
+<details><summary>Configurable properties</summary>
 
-You can also update an existing package with a newer `values.yml` file.
+| Config | Default | Description |
+|-------|-------------------|-------------|
+| `excluded_blueprints` | `[]` | A list of blueprints and manifests to esclude from being created in the cluster. |
 
-  ```shell
-  kctrl package installed update -i cartographer-blueprints \
-    -n kadras-packages \
-    --values-file values.yml
-  ```
+</details>
 
-## Other
+## 🛡️&nbsp; Security
 
-The recommended way of installing the Cartographer Blueprints package is via the [Kadras package repository](https://github.com/kadras-io/kadras-packages). If you prefer not using the repository, you can install the package by creating the necessary Carvel `PackageMetadata` and `Package` resources directly using [`kapp`](https://carvel.dev/kapp/docs/latest/install) or `kubectl`.
+The security process for reporting vulnerabilities is described in [SECURITY.md](SECURITY.md).
 
-  ```shell
-  kubectl create namespace kadras-packages
-  kapp deploy -a cartographer-blueprints-package -n kadras-packages -y \
-    -f https://github.com/kadras-io/cartographer-blueprints/releases/latest/download/metadata.yml \
-    -f https://github.com/kadras-io/cartographer-blueprints/releases/latest/download/package.yml
-  ```
+## 🖊️&nbsp; License
 
-## Support and Documentation
+This project is licensed under the **Apache License 2.0**. See [LICENSE](LICENSE) for more information.
 
-For support and documentation specific to Cartographer, check out [cartographer.sh](https://cartographer.sh).
-
-## References
+## 🙏&nbsp; Acknowledgments
 
 This package is inspired by:
 
 * the [examples](https://github.com/vmware-tanzu/cartographer/tree/main/examples) in the Cartographer project;
 * the original cartographer-catalog package used in [Tanzu Community Edition](https://github.com/vmware-tanzu/community-edition) before its retirement;
 * the [set of blueprints](https://github.com/vrabbi/tap-oss/tree/main/packages/ootb-supply-chains) included in an example of Tanzu Application Platform OSS stack.
-
-## Supply Chain Security
-
-This project is compliant with level 3 of the [SLSA Framework](https://slsa.dev).
-
-<img src="https://slsa.dev/images/SLSA-Badge-full-level3.svg" alt="The SLSA Level 3 badge" width=200>
+* the out-of-the-box blueprints provided by [Tanzu Application Platform](https://tanzu.vmware.com/application-platform).

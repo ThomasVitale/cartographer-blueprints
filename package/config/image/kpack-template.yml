@@ -8,20 +8,14 @@ metadata:
   name: kpack-template
   annotations:
     doc: |
-      This templates consumes an application Git repository. On every code change,
-      it packages the application as a container image and publishes it to the configured registry.
+      Consumes an application Git repository. On every code change, it packages the application
+      as an OCI image and publishes it to the configured registry.
 spec:
   params:
-  - name: serviceAccount
-    default: default
-  - name: clusterBuilder
-    default: default
-  - name: registry
-    default: {}
-  - name: kpackBindings
-    default: []
   - name: cacheVolumeSize
     default: "2Gi"
+  - name: buildServiceBindings
+    default: []
 
   imagePath: .status.latestImage
 
@@ -103,7 +97,7 @@ spec:
           valueFrom: #@ var.valueFrom
         #@ end
         #@ end
-        services: #@ data.values.params.kpackBindings
+        services: #@ data.values.params.buildServiceBindings
       cache:
         volume:
           size: #@ data.values.params.cacheVolumeSize

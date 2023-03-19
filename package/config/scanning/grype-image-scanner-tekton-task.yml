@@ -7,7 +7,7 @@ kind: ClusterTask
 metadata:
   name: grype-image-scanner
 spec:
-  description: Task to scan application image with Grype
+  description: Scans a given OCI image with Grype.
   params:
     - name: image
     - name: grype-args
@@ -17,7 +17,7 @@ spec:
         - "--only-fixed"
   steps:
     - name: scan
-      image: anchore/grype:v0.54.0
+      image: anchore/grype:v0.59.1
       args: ["$(params.image)", "$(params.grype-args[*])", "--config=/workspace/grype/grype.yml"]
       volumeMounts:
         - name: grype-config

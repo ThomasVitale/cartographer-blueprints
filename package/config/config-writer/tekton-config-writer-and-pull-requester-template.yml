@@ -8,17 +8,17 @@ metadata:
   name: tekton-config-writer-and-pull-requester-template
   annotations:
     doc: |
-      This templates consumes an application deployment configuration and executes the configured Tekton
-      task on every detected input change to push the configuration to a new branch and open a
+      Consumes an application deployment configuration and executes the configured Tekton
+      task on every detected input change to push the configuration to a a new branch and open a
       pull request to be merged manually.
 spec:
 
   lifecycle: tekton
 
   ytt: |
+    #@ load("@ytt:base64", "base64")
     #@ load("@ytt:data", "data")
     #@ load("@ytt:json", "json")
-    #@ load("@ytt:base64", "base64")
 
     #@ def param(key):
     #@   if not key in data.values.params:
@@ -37,7 +37,7 @@ spec:
     #@ end
 
     ---
-    apiVersion: tekton.dev/v1beta1
+    apiVersion: tekton.dev/v1
     kind: TaskRun
     metadata:
       generateName: #@ data.values.workload.metadata.name + "-config-writer-pull-requester-"
@@ -48,7 +48,7 @@ spec:
 
       taskRef:
         kind: ClusterTask
-        name: commit-and-pr-taskrun
+        name: commit-and-pr
 
       workspaces:
         - name: ws
@@ -56,28 +56,28 @@ spec:
 
       params:
         - name: git_server_address
-          value: #@ data.values.params.gitops_server_address
+          value: #@ data.values.params.gitops.server_address
         - name: repository_owner
-          value: #@ data.values.params.gitops_repository_owner
+          value: #@ data.values.params.gitops.repository.owner
         - name: repository_name
-          value: #@ data.values.params.gitops_repository_name
+          value: #@ data.values.params.gitops.repository.name
         - name: base_branch
-          value: #@ param("gitops_branch")
+          value: #@ param("gitops")["target_branch"]
         - name: git_user_name
-          value: #@ param("gitops_user_name")
+          value: #@ param("gitops")["user"]["name"]
         - name: git_user_email
-          value: #@ param("gitops_user_email")
+          value: #@ param("gitops")["user"]["email"]
         - name: git_commit_message
-          value: #@ param("gitops_commit_message")
+          value: #@ param("gitops")["commit"]["message"]
         - name: git_files
           value: #@ base64.encode(json.encode(data.values.config))
         - name: sub_path
           value: #@ "config/" + data.values.workload.metadata.namespace + "/" + data.values.workload.metadata.name
         - name: git_server_kind
-          value: #@ data.values.params.gitops_server_kind
+          value: #@ data.values.params.gitops.pull_request.server_kind
         - name: commit_branch
-          value: #@ data.values.params.gitops_commit_branch
+          value: #@ data.values.params.gitops.pull_request.commit_branch
         - name: pull_request_title
-          value: #@ data.values.params.gitops_pull_request_title
+          value: #@ data.values.params.gitops.pull_request.title
         - name: pull_request_body
-          value: #@ data.values.params.gitops_pull_request_body
+          value: #@ data.values.params.gitops.pull_request.body
