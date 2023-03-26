@@ -1,5 +1,5 @@
-load("@ytt:data", "data")
 load("@ytt:assert", "assert")
+load("@ytt:data", "data")
 
 ###########
 # GENERAL #
@@ -23,8 +23,8 @@ end
 
 def merge_labels(fixed_values):
   labels = {}
-  if hasattr(data.values.deliverable.metadata, "labels"):
-    labels.update(data.values.deliverable.metadata.labels)
+  if hasattr(data.values.workload.metadata, "labels"):
+    labels.update(data.values.workload.metadata.labels)
   end
   labels.update(fixed_values)
   return labels
@@ -35,39 +35,42 @@ end
 #########
 
 def image():
-  return image_name("","")
+  return "/".join([
+   data.values.params.registry.server,
+   data.values.params.registry.repository,
+   "-".join([
+     data.values.workload.metadata.name,
+     data.values.workload.metadata.namespace,
+   ])
+  ])
 end
 
 def image_bundle():
-  return image_name("bundle", ":" + data.values.workload.metadata.uid)
-end
-
-def image_name(suffix,tag):
   return "/".join([
-    data.values.params.registry.server,
-    data.values.params.registry.repository,
-    "-".join([
-      data.values.workload.metadata.name,
-      data.values.workload.metadata.namespace,
-      suffix,
-    ])
-  ]) + tag
+   data.values.params.registry.server,
+   data.values.params.registry.repository,
+   "-".join([
+     data.values.workload.metadata.name,
+     data.values.workload.metadata.namespace,
+     "bundle",
+   ])
+  ]) + ":" + data.values.workload.metadata.uid
 end
 
 ##########
 # GITOPS #
 ##########
 
-def is_gitops():
-  if 'gitops_server_address' in data.values.params and 'gitops_repository_owner' in data.values.params and 'gitops_repository_name' in data.values.params:
-    return True
+def is_gitops_enabled():
+  if param("gitops")["strategy"] == "none":
+    return False
   end
-  if 'gitops_server_address' in data.values.params or 'gitops_repository_owner' in data.values.params or 'gitops_repository_name' in data.values.params:
-    'gitops_server_address' in data.values.params or assert.fail("missing param: gitops_server_address")
-    'gitops_repository_owner' in data.values.params or assert.fail("missing param: gitops_repository_owner")
-    'gitops_repository_name' in data.values.params or assert.fail("missing param: gitops_repository_name")
+  if 'server_address' in param("gitops") or 'repository.owner' in param("gitops") or 'repository.name' in param("gitops"):
+    'server_address' in param("gitops") or assert.fail("missing param: gitops.server_address")
+    'owner' in param("gitops")["repository"] or assert.fail("missing param: gitops.repository.owner")
+    'name' in param("gitops")["repository"] or assert.fail("missing param: gitops.repository.name")
   end
-  return False
+  return True
 end
 
 def strip_trailing_slash(some_string):
@@ -78,10 +81,10 @@ def strip_trailing_slash(some_string):
 end
 
 def git_repository():
-  strip_trailing_slash(data.values.params.gitops_server_address)
+  strip_trailing_slash(data.values.params.gitops.server_address)
   return "/".join([
-    strip_trailing_slash(data.values.params.gitops_server_address),
-    strip_trailing_slash(data.values.params.gitops_repository_owner),
-    data.values.params.gitops_repository_name,
+    strip_trailing_slash(data.values.params.gitops.server_address),
+    strip_trailing_slash(data.values.params.gitops.repository.owner),
+    data.values.params.gitops.repository.name,
   ]) + ".git"
 end
