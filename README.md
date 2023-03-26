@@ -25,7 +25,7 @@ It includes blueprints to deal with several activities like source code watching
 
 ### Dependencies
 
-Cartographer Blueprints requires the [Cartographer](https://github.com/vmware-tanzu/package-for-cartographer) package. You can install it from the [Kadras package repository](https://github.com/kadras-io/kadras-packages).
+Cartographer Blueprints requires the [Cartographer](https://github.com/vmware-tanzu/package-for-cartographer), [Tekton Pipelines](https://github.com/vmware-tanzu/package-for-tekton-pipelines) and [Tekton Catalog](https://github.com/kadras-io/tekton-catalog) packages. You can install them from the [Kadras package repository](https://github.com/kadras-io/kadras-packages).
 
 ### Installation
 
