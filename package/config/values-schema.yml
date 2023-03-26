@@ -4,3 +4,6 @@
 #@schema/desc "A list of blueprints and manifests to esclude from being created in the cluster."
 excluded_blueprints:
   - ""
+
+#@schema/desc "The namespace where the Tekton Catalog package has been installed."
+tekton_catalog_namespace: tekton-catalog

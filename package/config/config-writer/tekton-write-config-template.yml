@@ -1,16 +1,20 @@
 #@ load("@ytt:data", "data")
 
-#@ if/end "tekton-config-writer-template" not in data.values.excluded_blueprints:
+#@ if/end "tekton-write-config-template" not in data.values.excluded_blueprints:
 ---
 apiVersion: carto.run/v1alpha1
 kind: ClusterTemplate
 metadata:
-  name: tekton-config-writer-template
+  name: tekton-write-config-template
   annotations:
     doc: |
       Consumes application deployment configuration and executes the configured Tekton
       task on every detected input change to push the configuration to a registry or repository.
 spec:
+
+  params:
+    - name: pipelineCatalogNamespace
+      default: #@ data.values.tekton_catalog_namespace
 
   lifecycle: tekton
 
@@ -93,8 +97,14 @@ spec:
       #@ if/end hasattr(data.values.workload.spec, "serviceAccountName"):
       serviceAccountName: #@ data.values.workload.spec.serviceAccountName
       taskRef:
-        kind: ClusterTask
-        name: #@ "git-writer" if is_gitops_enabled() else "image-writer"
+        resolver: cluster
+        params:
+        - name: kind
+          value: task
+        - name: name
+          value: #@ "git-write-config" if is_gitops_enabled() else "image-write-config"
+        - name: namespace
+          value: #@ data.values.params.pipelineCatalogNamespace
       params: 
         #@ if is_gitops_enabled():
         - name: git_repository

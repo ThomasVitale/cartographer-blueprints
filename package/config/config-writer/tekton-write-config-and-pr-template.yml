@@ -1,17 +1,21 @@
 #@ load("@ytt:data", "data")
 
-#@ if/end "tekton-config-writer-and-pull-requester-template" not in data.values.excluded_blueprints:
+#@ if/end "tekton-write-config-and-pr-template" not in data.values.excluded_blueprints:
 ---
 apiVersion: carto.run/v1alpha1
 kind: ClusterTemplate
 metadata:
-  name: tekton-config-writer-and-pull-requester-template
+  name: tekton-write-config-and-pr-template
   annotations:
     doc: |
       Consumes an application deployment configuration and executes the configured Tekton
       task on every detected input change to push the configuration to a a new branch and open a
       pull request to be merged manually.
 spec:
+
+  params:
+    - name: pipelineCatalogNamespace
+      default: #@ data.values.tekton_catalog_namespace
 
   lifecycle: tekton
 
@@ -47,12 +51,14 @@ spec:
       serviceAccountName: #@ data.values.workload.spec.serviceAccountName
 
       taskRef:
-        kind: ClusterTask
-        name: commit-and-pr
-
-      workspaces:
-        - name: ws
-          emptyDir: {}
+        resolver: cluster
+        params:
+        - name: kind
+          value: task
+        - name: name
+          value: git-write-config-and-pr
+        - name: namespace
+          value: #@ data.values.params.pipelineCatalogNamespace
 
       params:
         - name: git_server_address

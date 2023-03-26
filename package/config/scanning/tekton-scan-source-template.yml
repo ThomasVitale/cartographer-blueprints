@@ -14,6 +14,8 @@ spec:
   params:
     - name: scannerName
       default: trivy
+    - name: pipelineCatalogNamespace
+      default: #@ data.values.tekton_catalog_namespace
 
   urlPath: .spec.params[0].value
   revisionPath: .spec.params[1].value
@@ -54,8 +56,14 @@ spec:
       labels: #@ merge_labels({ "app.kubernetes.io/component": "scan" })
     spec:
       taskRef:
-        name: #@ vulnerabilityScanner + "-source-scanner"
-        kind: ClusterTask
+        resolver: cluster
+        params:
+        - name: kind
+          value: task
+        - name: name
+          value: #@ vulnerabilityScanner + "-scan-source"
+        - name: namespace
+          value: #@ data.values.params.pipelineCatalogNamespace
       workspaces:
         - name: source-dir
           emptyDir: {}

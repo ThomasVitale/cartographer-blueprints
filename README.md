@@ -96,12 +96,6 @@ The package provides several blueprints to design paths to production on Kuberne
 * `tekton-scan-image-template`: it provides a template to scan container images with Tekton and the configured vulnerability scanner.
 * `tekton-scan-source-template`: it provides a template to scan application source code with Tekton and the configured vulnerability scanner.
 
-* `grype-image-scanner-tekton-task`: a Tekton task using Grype to scan container images.
-* `grype-source-scanner-tekton-task`: a Tekton task using Grype to scan application source code.
-
-* `trivy-image-scanner-tekton-task`: a Tekton task using Trivy to scan container images.
-* `trivy-source-scanner-tekton-task`: a Tekton task using Trivy to scan application source code.
-
 ### Conventions (Cartographer)
 
 * `convention-template`: it applies configuration and best-practices to workloads at runtime by understanding the developer's intent, using Cartographer Conventions.
@@ -112,12 +106,8 @@ The package provides several blueprints to design paths to production on Kuberne
 
 ### Promotion (Tekton)
 
-* `tekton-config-writer-template`: it provides a template to publish deployment configuration to a container registry or Git repository for promotion to a specific environment.
-* `tekton-config-writer-and-pull-request-template`: it provides a template to publish deployment configuration to a Git repository for promotion to a specific environment via a pull request.
-
-* `git-writer-tekton-task`: a Tekton task pushing deployment configuration to a Git repository.
-* `image-writer-tekton-task`: a Tekton task pushing deployment configuration to a container registry (OCI bundle).
-* `commit-and-pr-tekton-task`: a Tekton task pushing deployment configuration to a Git repository and opening a pull request for merging the changes to the main branch.
+* `tekton-write-config-template`: it provides a template to publish deployment configuration to a container registry or Git repository for promotion to a specific environment.
+* `tekton-write-config-and-pr-template`: it provides a template to publish deployment configuration to a Git repository for promotion to a specific environment via a pull request.
 
 ### Delivery (Cartographer)
 
@@ -156,6 +146,7 @@ The Cartographer Blueprints package has the following configurable properties.
 | Config | Default | Description |
 |-------|-------------------|-------------|
 | `excluded_blueprints` | `[]` | A list of blueprints and manifests to esclude from being created in the cluster. |
+| `tekton_catalog_namespace` | `tekton-catalog` | The namespace where the Tekton Catalog package has been installed. |
 
 </details>
 
@@ -174,4 +165,4 @@ This package is inspired by:
 * the [examples](https://github.com/vmware-tanzu/cartographer/tree/main/examples) in the Cartographer project;
 * the original cartographer-catalog package used in [Tanzu Community Edition](https://github.com/vmware-tanzu/community-edition) before its retirement;
 * the [set of blueprints](https://github.com/vrabbi/tap-oss/tree/main/packages/ootb-supply-chains) included in an example of Tanzu Application Platform OSS stack.
-* the out-of-the-box blueprints provided by [Tanzu Application Platform](https://tanzu.vmware.com/application-platform).
+* the [set of blueprints](https://github.com/LittleBaiBai/tap-playground/tree/main/supply-chains) included in the playground for Tanzu Application Platform.

@@ -13,7 +13,9 @@ metadata:
 spec:
   params:
     - name: pipelineName
-      default: testing-pipeline
+      default: ""
+    - name: pipelineCatalogNamespace
+      default: #@ data.values.tekton_catalog_namespace
 
   urlPath: .status.pipelineSpec.tasks[0].params[0].value
   revisionPath: .status.pipelineSpec.tasks[0].params[1].value
@@ -21,6 +23,7 @@ spec:
   lifecycle: tekton
   
   ytt: |
+    #@ load("@ytt:assert", "assert")
     #@ load("@ytt:data", "data")
 
     #@ def param(key):
@@ -39,6 +42,15 @@ spec:
     #@   return labels
     #@ end
 
+    #@ def get_app_language():
+    #@   if hasattr(data.values.workload.metadata, "labels"):
+    #@     if data.values.workload.metadata.labels["apps.kadras.io/language"]:
+    #@       return data.values.workload.metadata.labels["apps.kadras.io/language"]
+    #@     end
+    #@   end
+    #@   return ""
+    #@ end
+
     ---
     apiVersion: tekton.dev/v1
     kind: PipelineRun
@@ -46,8 +58,22 @@ spec:
       generateName: #@ data.values.workload.metadata.name + "-test-"
       labels: #@ merge_labels({ "app.kubernetes.io/component": "test" })
     spec:
+      #@ if data.values.params.pipelineName != "":
       pipelineRef:
         name: #@ data.values.params.pipelineName
+      #@ elif get_app_language() != "":
+      pipelineRef:
+        resolver: cluster
+        params:
+        - name: kind
+          value: pipeline
+        - name: name
+          value: #@ get_app_language() + "-test-pipeline"
+        - name: namespace
+          value: #@ data.values.params.pipelineCatalogNamespace
+      #@ else:
+      #@ assert.fail("One between the 'apps.kadras.io/language' label and the 'pipelineName' parameter must be not empy.")
+      #@ end
       params:
       - name: source-url
         value: #@ data.values.source.url

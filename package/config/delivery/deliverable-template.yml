@@ -98,5 +98,5 @@ spec:
         #@ if/end not is_gitops_enabled():
         image: #@ image_bundle()
       
-      #@ if/end is_gitops_enabled():
-      subPath: #@ "config/" + data.values.workload.metadata.namespace + "/" + data.values.workload.metadata.name
+        #@ if/end is_gitops_enabled():
+        subPath: #@ "config/" + data.values.workload.metadata.namespace + "/" + data.values.workload.metadata.name
