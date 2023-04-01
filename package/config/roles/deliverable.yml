@@ -1,0 +1,26 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cartographer-blueprints-deliverable
+  labels:
+    apps.kadras.io/aggregate-to-deliverable: "true"
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps", "services"]
+    verbs: ["*"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["*"]
+  - apiGroups: ["kappctrl.k14s.io"]
+    resources: ["apps"]
+    verbs: ["*"]
+  - apiGroups: ["serving.knative.dev"]
+    resources: ["services"]
+    verbs: ["*"]
+  - apiGroups: ["source.toolkit.fluxcd.io"]
+    resources: ["gitrepositories", "ocirepositories"]
+    verbs: ["*"]
+  - apiGroups: ["carto.run"]
+    resources: ["deliverables/finalizers", "runnables/finalizers"]
+    verbs: ["update"]
