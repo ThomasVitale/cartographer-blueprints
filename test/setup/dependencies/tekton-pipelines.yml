@@ -12,4 +12,4 @@ spec:
   packageRef:
     refName: tekton-pipelines.packages.kadras.io
     versionSelection:
-      constraints: 0.46.0
+      constraints: 0.46.0+kadras.2
