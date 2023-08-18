@@ -11,6 +11,9 @@ metadata:
       Consumes application deployment configuration and uses it as the source
       for a local continuous deployment flow.
 spec:
+  params:
+    - name: serviceAccount
+      default: default
   
   healthRule:
     multiMatch:

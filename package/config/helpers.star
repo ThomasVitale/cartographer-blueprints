@@ -45,7 +45,7 @@ def image():
   ])
 end
 
-def image_bundle():
+def oci_bundle():
   return "/".join([
    data.values.params.registry.server,
    data.values.params.registry.repository,

@@ -17,23 +17,18 @@ commands:
   - script: |
       kubectl config set-context --current --namespace=tests && \
       kapp deploy -a secretgen-controller-package -y \
-        -f https://github.com/carvel-dev/secretgen-controller/releases/download/v0.14.2/package.yml \
-        -f https://github.com/carvel-dev/secretgen-controller/releases/download/v0.14.2/package-metadata.yml
+        -f https://github.com/kadras-io/package-for-secretgen-controller/releases/download/v0.14.8/package.yml \
+        -f https://github.com/kadras-io/package-for-secretgen-controller/releases/download/v0.14.8/metadata.yml
   - script: |
       kubectl config set-context --current --namespace=tests && \
       kapp deploy -a cert-manager-package -y \
-        -f https://github.com/kadras-io/package-for-cert-manager/releases/download/v1.11.0%2Bkadras.2/package.yml \
-        -f https://github.com/kadras-io/package-for-cert-manager/releases/download/v1.11.0%2Bkadras.2/metadata.yml
+        -f https://github.com/kadras-io/package-for-cert-manager/releases/download/v1.12.3/package.yml \
+        -f https://github.com/kadras-io/package-for-cert-manager/releases/download/v1.12.3/metadata.yml
   - script: |
       kubectl config set-context --current --namespace=tests && \
       kapp deploy -a cartographer-package -y \
-        -f https://github.com/vmware-tanzu/package-for-cartographer/releases/download/v0.7.1+tap.1/package.yaml \
-        -f https://github.com/vmware-tanzu/package-for-cartographer/releases/download/v0.7.1+tap.1/package-metadata.yaml
-  - script: |
-      kubectl config set-context --current --namespace=tests && \
-      kapp deploy -a tekton-pipelines-package -y \
-        -f https://github.com/kadras-io/package-for-tekton-pipelines/releases/download/v0.46.0+kadras.2/package.yml \
-        -f https://github.com/kadras-io/package-for-tekton-pipelines/releases/download/v0.46.0+kadras.2/metadata.yml
+        -f https://github.com/kadras-io/package-for-cartographer/releases/download/v0.7.3/package.yaml \
+        -f https://github.com/kadras-io/package-for-cartographer/releases/download/v0.7.3/metadata.yaml
   - script: |
       kubectl config set-context --current --namespace=tests && \
       kapp deploy -a dependencies -y -f ./test/setup/dependencies

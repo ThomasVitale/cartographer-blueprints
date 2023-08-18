@@ -11,6 +11,9 @@ metadata:
       Consumes an application deployment Git repository and uses it as the source
       for a GitOps-based continuous deployment flow.
 spec:
+  params:
+    - name: serviceAccount
+      default: default
   
   healthRule:
     multiMatch:
@@ -73,7 +76,7 @@ spec:
       serviceAccountName: #@ data.values.params.serviceAccount
       fetch:
         - http:
-            url: #@ data.values.deployment.url or assert.fail("missing required deployment config url")
+            url: #@ data.values.deployment.url or assert.fail("missing required deployment http url")
             #@ if/end hasattr(data.values.deliverable.spec.source, "subPath"):
             subPath: #@ data.values.deliverable.spec.source.subPath
         - inline:

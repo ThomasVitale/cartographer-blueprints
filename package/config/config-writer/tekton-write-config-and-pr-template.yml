@@ -12,10 +12,13 @@ metadata:
       task on every detected input change to push the configuration to a a new branch and open a
       pull request to be merged manually.
 spec:
-
   params:
+    - name: gitops
+      default: {}
     - name: pipelineCatalogNamespace
       default: #@ data.values.tekton_catalog_namespace
+    - name: serviceAccount
+      default: #@ data.values.service_account
 
   lifecycle: tekton
 

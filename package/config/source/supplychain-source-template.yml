@@ -11,6 +11,11 @@ metadata:
       Consume an application Git repository via a Git server or OCI registry, and use it as
       the source for triggering a supply chain on every code change.
 spec:
+  params:
+    - name: gitCredentialsSecret
+      default: ""
+    - name: serviceAccount
+      default: default
 
   urlPath: .status.artifact.url
   revisionPath: .status.artifact.revision
@@ -39,7 +44,7 @@ spec:
 
     #@ if/end hasattr(data.values.workload.spec.source, "git"):
     ---
-    apiVersion: source.toolkit.fluxcd.io/v1beta2
+    apiVersion: source.toolkit.fluxcd.io/v1
     kind: GitRepository
     metadata:
       name: #@ data.values.workload.metadata.name
@@ -48,9 +53,9 @@ spec:
       interval: 1m0s
       url: #@ data.values.workload.spec.source.git.url
       ref: #@ data.values.workload.spec.source.git.ref
-      #@ if/end param("gitAccessSecret"):
+      #@ if/end param("gitCredentialsSecret"):
       secretRef:
-        name: #@ param("gitAccessSecret")
+        name: #@ param("gitCredentialsSecret")
     
     #@ if hasattr(data.values.workload.spec.source, "image"):
     #@   oci_artifact = data.values.workload.spec.source.image.split(":latest@", 1)
@@ -58,7 +63,7 @@ spec:
 
     #@ if/end hasattr(data.values.workload.spec.source, "image"):
     ---
-    apiVersion: source.toolkit.fluxcd.io/v1beta2
+    apiVersion: source.toolkit.fluxcd.io/v1
     kind: OCIRepository
     metadata:
       name: #@ data.values.workload.metadata.name

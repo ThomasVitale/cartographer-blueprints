@@ -11,10 +11,17 @@ metadata:
       Consumes application deployment configuration and executes the configured Tekton
       task on every detected input change to push the configuration to a registry or repository.
 spec:
-
   params:
+    - name: ca_cert_data
+      default: ""
+    - name: gitops
+      default: {}
     - name: pipelineCatalogNamespace
       default: #@ data.values.tekton_catalog_namespace
+    - name: registry
+      default: {}
+    - name: serviceAccount
+      default: #@ data.values.service_account
 
   lifecycle: tekton
 
@@ -40,7 +47,7 @@ spec:
     #@   return labels
     #@ end
 
-    #@ def image_bundle():
+    #@ def oci_bundle():
     #@   return "/".join([
     #@    data.values.params.registry.server,
     #@    data.values.params.registry.repository,
@@ -50,13 +57,6 @@ spec:
     #@      "bundle",
     #@    ])
     #@   ]) + ":" + data.values.workload.metadata.uid
-    #@ end
-
-    #@ def ca_cert_data():
-    #@   if "ca_cert_data" not in param("registry"):
-    #@     return ""
-    #@   end
-    #@   return param("registry")["ca_cert_data"]
     #@ end
 
     #@ def is_gitops_enabled():
@@ -102,7 +102,7 @@ spec:
         - name: kind
           value: task
         - name: name
-          value: #@ "git-write-config" if is_gitops_enabled() else "image-write-config"
+          value: #@ "git-write-config" if is_gitops_enabled() else "oci-write-config"
         - name: namespace
           value: #@ data.values.params.pipelineCatalogNamespace
       params: 
@@ -125,7 +125,7 @@ spec:
         - name: files
           value: #@ base64.encode(json.encode(data.values.config))
         - name: bundle
-          value: #@ image_bundle()
+          value: #@ oci_bundle()
         - name: ca_cert_data
-          value: #@ ca_cert_data()
+          value: #@ param("ca_cert_data")
         #@ end
