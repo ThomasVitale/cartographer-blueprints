@@ -53,7 +53,7 @@ spec:
     kind: TaskRun
     metadata:
       generateName: #@ data.values.workload.metadata.name + "-source-scanner-"
-      labels: #@ merge_labels({ "app.kubernetes.io/component": "scan" })
+      labels: #@ merge_labels({ "app.kubernetes.io/component": "source-scan" })
     spec:
       taskRef:
         resolver: cluster

@@ -11,6 +11,11 @@ metadata:
       Consumes a configuration Git repository via a Git server or OCI registry, and use it as
       the source for triggering a delivery chain on every code change.
 spec:
+  params: 
+    - name: gitCredentialsSecret
+      default: ""
+    - name: serviceAccount
+      default: default
 
   urlPath: .status.artifact.url
   revisionPath: .status.artifact.revision
@@ -48,9 +53,9 @@ spec:
       interval: 1m0s
       url: #@ data.values.deliverable.spec.source.git.url
       ref: #@ data.values.deliverable.spec.source.git.ref
-      #@ if/end param("gitAccessSecret"):
+      #@ if/end param("gitCredentialsSecret"):
       secretRef:
-        name: #@ param("gitAccessSecret")
+        name: #@ param("gitCredentialsSecret")
 
     #@ if hasattr(data.values.deliverable.spec.source, "image"):
     #@   oci_artifact = data.values.deliverable.spec.source.image.split(":", 1)

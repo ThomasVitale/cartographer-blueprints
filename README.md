@@ -2,7 +2,7 @@
 
 ![Test Workflow](https://github.com/kadras-io/cartographer-blueprints/actions/workflows/test.yml/badge.svg)
 ![Release Workflow](https://github.com/kadras-io/cartographer-blueprints/actions/workflows/release.yml/badge.svg)
-[![The SLSA Level 3 badge](https://slsa.dev/images/gh-badge-level3.svg)](https://slsa.dev/spec/v0.1/levels)
+[![The SLSA Level 3 badge](https://slsa.dev/images/gh-badge-level3.svg)](https://slsa.dev/spec/v1.0/levels)
 [![The Apache 2.0 license badge](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Follow us on Twitter](https://img.shields.io/static/v1?label=Twitter&message=Follow&color=1DA1F2)](https://twitter.com/kadrasIO)
 
@@ -14,7 +14,7 @@ It includes blueprints to deal with several activities like source code watching
 
 ### Prerequisites
 
-* Kubernetes 1.24+
+* Kubernetes 1.25+
 * Carvel [`kctrl`](https://carvel.dev/kapp-controller/docs/latest/install/#installing-kapp-controller-cli-kctrl) CLI.
 * Carvel [kapp-controller](https://carvel.dev/kapp-controller) deployed in your Kubernetes cluster. You can install it with Carvel [`kapp`](https://carvel.dev/kapp/docs/latest/install) (recommended choice) or `kubectl`.
 
@@ -25,17 +25,16 @@ It includes blueprints to deal with several activities like source code watching
 
 ### Dependencies
 
-Cartographer Blueprints requires the [Cartographer](https://github.com/vmware-tanzu/package-for-cartographer), [Tekton Pipelines](https://github.com/vmware-tanzu/package-for-tekton-pipelines) and [Tekton Catalog](https://github.com/kadras-io/tekton-catalog) packages. You can install them from the [Kadras package repository](https://github.com/kadras-io/kadras-packages).
+Cartographer Blueprints requires the [Cartographer](https://github.com/kadras-io/package-for-cartographer), [Tekton Pipelines](https://github.com/kadras-io/package-for-tekton-pipelines) and [Tekton Catalog](https://github.com/kadras-io/tekton-catalog) packages. You can install them from the [Kadras package repository](https://github.com/kadras-io/kadras-packages).
 
 ### Installation
 
 Add the Kadras [package repository](https://github.com/kadras-io/kadras-packages) to your Kubernetes cluster:
 
   ```shell
-  kubectl create namespace kadras-packages
   kctrl package repository add -r kadras-packages \
     --url ghcr.io/kadras-io/kadras-packages \
-    -n kadras-packages
+    -n kadras-packages --create-namespace
   ```
 
 <details><summary>Installation without package repository</summary>
@@ -124,7 +123,7 @@ The Cartographer Blueprints package can be customized via a `values.yml` file.
 
   ```yaml
   excluded_blueprints:
-    - "config-template"
+    - "knative-config-template"
   ```
 
 Reference the `values.yml` file from the `kctrl` command when installing or upgrading the package.
@@ -164,5 +163,5 @@ This package is inspired by:
 
 * the [examples](https://github.com/vmware-tanzu/cartographer/tree/main/examples) in the Cartographer project;
 * the original cartographer-catalog package used in [Tanzu Community Edition](https://github.com/vmware-tanzu/community-edition) before its retirement;
-* the [set of blueprints](https://github.com/vrabbi/tap-oss/tree/main/packages/ootb-supply-chains) included in an example of Tanzu Application Platform OSS stack.
+* the [set of blueprints](https://github.com/vrabbi/tap-oss/tree/main/packages/ootb-supply-chains) developed by [Scott Rosenberg](https://vrabbi.cloud) in an example of Tanzu Application Platform OSS stack;
 * the [set of blueprints](https://github.com/LittleBaiBai/tap-playground/tree/main/supply-chains) included in the playground for Tanzu Application Platform.

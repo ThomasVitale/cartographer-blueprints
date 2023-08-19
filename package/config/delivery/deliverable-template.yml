@@ -12,6 +12,13 @@ metadata:
     doc: |
       Generates a Deliverable resource for the current Workload.
 spec:
+  params: 
+    - name: gitCredentialsSecret
+      default: ""
+    - name: gitops
+      default: {}
+    - name: registry
+      default: {}
 
   ytt: |
     #@ load("@ytt:assert", "assert")
@@ -33,7 +40,7 @@ spec:
     #@   return labels
     #@ end
 
-    #@ def image_bundle():
+    #@ def oci_bundle():
     #@   return "/".join([
     #@    data.values.params.registry.server,
     #@    data.values.params.registry.repository,
@@ -83,10 +90,14 @@ spec:
       #@ if/end hasattr(data.values.workload.spec, "serviceAccountName"):
       serviceAccountName: #@ data.values.workload.spec.serviceAccountName
 
-      #@ if/end is_gitops_enabled():
+      #@ if/end is_gitops_enabled() or 'serviceAccount' in data.values.params:
       params:
-        - name: gitAccessSecret
-          value: #@ param("gitAccessSecret")
+        #@ if/end is_gitops_enabled():
+        - name: gitCredentialsSecret
+          value: #@ param("gitCredentialsSecret")
+        #@ if/end 'serviceAccount' in data.values.params:
+        - name: serviceAccount
+          value: #@ param("serviceAccount")
 
       source:
         #@ if/end is_gitops_enabled():
@@ -96,7 +107,7 @@ spec:
             branch: #@ param("gitops")["target_branch"]
 
         #@ if/end not is_gitops_enabled():
-        image: #@ image_bundle()
+        image: #@ oci_bundle()
       
         #@ if/end is_gitops_enabled():
         subPath: #@ "config/" + data.values.workload.metadata.namespace + "/" + data.values.workload.metadata.name

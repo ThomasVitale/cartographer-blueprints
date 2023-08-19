@@ -11,6 +11,6 @@ metadata:
 spec:
   serviceAccountName: kadras-install-sa
   packageRef:
-    refName: cartographer.tanzu.vmware.com
+    refName: cartographer.packages.kadras.io
     versionSelection:
-      constraints: 0.7.1+tap.1
+      constraints: 0.7.3
