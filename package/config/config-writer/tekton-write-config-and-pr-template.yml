@@ -18,7 +18,7 @@ spec:
     - name: pipelineCatalogNamespace
       default: #@ data.values.tekton_catalog_namespace
     - name: serviceAccount
-      default: #@ data.values.service_account
+      default: default
 
   lifecycle: tekton
 

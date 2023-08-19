@@ -21,7 +21,7 @@ spec:
     - name: registry
       default: {}
     - name: serviceAccount
-      default: #@ data.values.service_account
+      default: default
 
   lifecycle: tekton
 
