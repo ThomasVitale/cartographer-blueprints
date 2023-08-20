@@ -63,7 +63,7 @@ spec:
 
     #@ if/end hasattr(data.values.workload.spec.source, "image"):
     ---
-    apiVersion: source.toolkit.fluxcd.io/v1
+    apiVersion: source.toolkit.fluxcd.io/v1beta2
     kind: OCIRepository
     metadata:
       name: #@ data.values.workload.metadata.name
