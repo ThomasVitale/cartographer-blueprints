@@ -1,14 +1,14 @@
 #@ load("@ytt:data", "data")
 
-#@ if/end "app-local-deployment-template" not in data.values.excluded_blueprints:
+#@ if/end "app-gitops-deployment-template" not in data.values.excluded_blueprints:
 ---
 apiVersion: carto.run/v1alpha1
 kind: ClusterTemplate
 metadata:
-  name: app-local-deployment-template
+  name: app-gitops-deployment-template
   annotations:
     doc: |
-      Consumes local application deployment configuration
+      Consumes application deployment configuration via GitOps
       and uses it as the source for deployment on the current cluster.
 spec:
   params:
@@ -30,7 +30,6 @@ spec:
 
   ytt: |
     #@ load("@ytt:data", "data")
-    #@ load("@ytt:yaml", "yaml")
 
     #@ def merge_labels(fixed_values):
     #@   labels = {}
@@ -40,36 +39,20 @@ spec:
     #@   labels.update(fixed_values)
     #@   return labels
     #@ end
-    
-    #@ def/end kapp_config():
-    ---
-    apiVersion: kapp.k14s.io/v1alpha1
-    kind: Config
-    rebaseRules:
-      - path: [metadata, annotations, serving.knative.dev/creator]
-        type: copy
-        sources: [new, existing]
-        resourceMatchers: &matchers
-          - apiVersionKindMatcher: {apiVersion: serving.knative.dev/v1, kind: Service}
-      - path: [metadata, annotations, serving.knative.dev/lastModifier]
-        type: copy
-        sources: [new, existing]
-        resourceMatchers: *matchers
 
     ---
     apiVersion: kappctrl.k14s.io/v1alpha1
     kind: App
     metadata:
-      name: #@ data.values.workload.metadata.name
+      name: #@ data.values.workload.metadata.name + "-delivery"
       labels: #@ merge_labels({ "app.kubernetes.io/component": "deploy" })
     spec:
-      syncPeriod: 10m0s
       serviceAccountName: #@ data.values.params.serviceAccount
+      syncPeriod: 1m0s
       fetch:
         - inline:
             paths:
-              service.yml: #@ data.values.config["delivery.yml"]
-              kapp-config.yml: #@ yaml.encode(kapp_config())
+              deliverable.yml: #@ data.values.config.deliverable
       template:
         - ytt: {}
         - kbld: {}

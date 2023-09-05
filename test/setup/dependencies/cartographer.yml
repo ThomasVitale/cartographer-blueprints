@@ -13,4 +13,4 @@ spec:
   packageRef:
     refName: cartographer.packages.kadras.io
     versionSelection:
-      constraints: 0.7.3
+      constraints: 0.8.0+kadras.1

@@ -27,8 +27,8 @@ commands:
   - script: |
       kubectl config set-context --current --namespace=tests && \
       kapp deploy -a cartographer-package -y \
-        -f https://github.com/kadras-io/package-for-cartographer/releases/download/v0.7.3/package.yml \
-        -f https://github.com/kadras-io/package-for-cartographer/releases/download/v0.7.3/metadata.yml
+        -f https://github.com/kadras-io/package-for-cartographer/releases/download/v0.8.0%2Bkadras.1/package.yml \
+        -f https://github.com/kadras-io/package-for-cartographer/releases/download/v0.8.0%2Bkadras.1/metadata.yml
   - script: |
       kubectl config set-context --current --namespace=tests && \
       kapp deploy -a dependencies -y -f ./test/setup/dependencies

@@ -44,8 +44,8 @@ spec:
 
     #@ def get_app_language():
     #@   if hasattr(data.values.workload.metadata, "labels"):
-    #@     if data.values.workload.metadata.labels["apps.kadras.io/language"]:
-    #@       return data.values.workload.metadata.labels["apps.kadras.io/language"]
+    #@     if data.values.workload.metadata.labels["app.kadras.io/language"]:
+    #@       return data.values.workload.metadata.labels["app.kadras.io/language"]
     #@     end
     #@   end
     #@   return ""
@@ -72,7 +72,7 @@ spec:
         - name: namespace
           value: #@ data.values.params.pipelineCatalogNamespace
       #@ else:
-      #@ assert.fail("One between the 'apps.kadras.io/language' label and the 'pipelineName' parameter must be not empy.")
+      #@ assert.fail("One between the 'app.kadras.io/language' label and the 'pipelineName' parameter must be not empy.")
       #@ end
       params:
       - name: source-url

@@ -4,7 +4,7 @@ kind: ClusterRole
 metadata:
   name: cartographer-blueprints-workload
   labels:
-    apps.kadras.io/aggregate-to-workload: "true"
+    platform.kadras.io/aggregate-to-workload: "true"
 rules:
   - apiGroups: [""]
     resources: ["configmaps"]
