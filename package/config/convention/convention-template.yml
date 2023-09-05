@@ -57,6 +57,7 @@ spec:
     #@   return fixed_annotations
     #@ end
 
+    ---
     apiVersion: conventions.carto.run/v1alpha1
     kind: PodIntent
     metadata:

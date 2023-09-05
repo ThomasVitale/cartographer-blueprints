@@ -4,7 +4,7 @@ kind: ClusterRole
 metadata:
   name: cartographer-blueprints-deliverable
   labels:
-    apps.kadras.io/aggregate-to-deliverable: "true"
+    platform.kadras.io/aggregate-to-deliverable: "true"
 rules:
   - apiGroups: [""]
     resources: ["configmaps", "services"]
@@ -20,6 +20,9 @@ rules:
     verbs: ["*"]
   - apiGroups: ["source.toolkit.fluxcd.io"]
     resources: ["gitrepositories", "ocirepositories"]
+    verbs: ["*"]
+  - apiGroups: ["kustomize.toolkit.fluxcd.io"]
+    resources: ["kustomizations"]
     verbs: ["*"]
   - apiGroups: ["carto.run"]
     resources: ["deliverables/finalizers", "runnables/finalizers"]

@@ -9,7 +9,7 @@ metadata:
   annotations:
     doc: |
       Consumes an application deployment configuration and executes the configured Tekton
-      task on every detected input change to push the configuration to a a new branch and open a
+      task on every detected input change to push the configuration to a new branch and open a
       pull request to be merged manually.
 spec:
   params:

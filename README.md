@@ -80,7 +80,6 @@ The package provides several blueprints to design paths to production on Kuberne
 ### Source (Flux)
 
 * `supplychain-source-template`: it uses Flux to keep track of _application_ changes to a Git or OCI repository and make the source available internally in the cluster.
-* `delivery-source-template`: it uses Flux to keep track of _configuration_ changes to a Git or OCI repository and make the source available internally in the cluster.
 
 ### Image (kpack)
 
@@ -108,14 +107,15 @@ The package provides several blueprints to design paths to production on Kuberne
 * `tekton-write-config-template`: it provides a template to publish deployment configuration to a container registry or Git repository for promotion to a specific environment.
 * `tekton-write-config-and-pr-template`: it provides a template to publish deployment configuration to a Git repository for promotion to a specific environment via a pull request.
 
-### Delivery (Cartographer)
+### Deliverable (Carvel and Flux)
 
-* `deliverable-template`: it generates a Deliverable object used by Cartographer to trigger the deployment phase of the path to production.
+* `deliverable-carvel-app-config-template`: it uses Carvel to generate a deliverable resource (`App`) for deploying the application on a Kubernetes cluster.
+* `deliverable-flux-kustomization-template`: it uses Flux to generate a deliverable resource (`GitRepository` and `Kustomization`) for deploying the application on a Kubernetes cluster.
 
 ### Deploy (Carvel)
 
-* `app-local-deployment-template`: it runs an application packaged as a Carvel `App` as part of a local workflow.
-* `app-remote-deployment-template`: it runs an application packaged as a Carvel `App` as part of a remote workflow.
+* `app-local-deployment-template`: it runs an application packaged as a Carvel `App` from local configuration.
+* `app-gitops-deployment-template`: it runs an application packaged as a Carvel `App` from remote configuration (Git or OCI registry), based on either Carvel or Flux.
 
 ## 🎯&nbsp; Configuration
 
@@ -144,7 +144,7 @@ The Cartographer Blueprints package has the following configurable properties.
 
 | Config | Default | Description |
 |-------|-------------------|-------------|
-| `excluded_blueprints` | `[]` | A list of blueprints and manifests to esclude from being created in the cluster. |
+| `excluded_blueprints` | `[]` | A list of blueprints to esclude from being created in the cluster. |
 | `tekton_catalog_namespace` | `tekton-catalog` | The namespace where the Tekton Catalog package has been installed. |
 
 </details>
