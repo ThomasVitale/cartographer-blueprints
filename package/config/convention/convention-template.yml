@@ -75,7 +75,7 @@ spec:
             - name: workload
               image: #@ data.values.image
               securityContext:
-                runAsUser: 1000
+                runAsUser: 1001
               #@ if hasattr(data.values.workload.spec, "env"):
               env:
                 #@ for var in data.values.workload.spec.env:
