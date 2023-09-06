@@ -6,24 +6,34 @@ metadata:
   labels:
     platform.kadras.io/aggregate-to-workload: "true"
 rules:
+
+  #! Core
   - apiGroups: [""]
     resources: ["configmaps"]
-    verbs: ["*"]
+    verbs: ["get", "list", "watch", "create", "patch", "update", "delete", "deletecollection"]
+  
+  #! Cartographer
   - apiGroups: ["carto.run"]
-    resources: ["deliverables", "runnables"]
-    verbs: ["*"]
-  - apiGroups: ["source.toolkit.fluxcd.io"]
-    resources: ["gitrepositories", "ocirepositories"]
-    verbs: ["*"]
-  - apiGroups: ["tekton.dev"]
-    resources: ["pipelineruns", "taskruns"]
-    verbs: ["*"]
-  - apiGroups: ["tekton.dev"]
-    resources: ["pipelines", "tasks"]
-    verbs: ["get", "list", "watch"]
-  - apiGroups: ["kpack.io"]
-    resources: ["images"]
-    verbs: ["*"]
+    resources: ["runnables"]
+    verbs: ["get", "list", "watch", "create", "patch", "update", "delete", "deletecollection"]
+  - apiGroups: ["carto.run"]
+    resources: ["workloads/finalizers", "runnables/finalizers"]
+    verbs: ["update"]
   - apiGroups: ["conventions.carto.run"]
     resources: ["podintents"]
-    verbs: ["*"]
+    verbs: ["get", "list", "watch", "create", "patch", "update", "delete", "deletecollection"]
+  
+  #! Flux
+  - apiGroups: ["source.toolkit.fluxcd.io"]
+    resources: ["gitrepositories", "ocirepositories"]
+    verbs: ["get", "list", "watch", "create", "patch", "update", "delete", "deletecollection"]
+  
+  #! kpack
+  - apiGroups: ["kpack.io"]
+    resources: ["images"]
+    verbs: ["get", "list", "watch", "create", "patch", "update", "delete", "deletecollection"]
+
+  #! Tekton
+  - apiGroups: ["tekton.dev"]
+    resources: ["pipelineruns", "taskruns"]
+    verbs: ["get", "list", "watch", "create", "patch", "update", "delete", "deletecollection"]

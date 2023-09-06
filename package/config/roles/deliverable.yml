@@ -6,24 +6,32 @@ metadata:
   labels:
     platform.kadras.io/aggregate-to-deliverable: "true"
 rules:
+
+  #! Core
   - apiGroups: [""]
     resources: ["configmaps", "services"]
-    verbs: ["*"]
+    verbs: ["get", "list", "watch", "create", "patch", "update", "delete", "deletecollection"]
   - apiGroups: ["apps"]
     resources: ["deployments"]
-    verbs: ["*"]
+    verbs: ["get", "list", "watch", "create", "patch", "update", "delete", "deletecollection"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "watch", "create", "patch", "update", "delete", "deletecollection"]
+  
+  #! Carvel
   - apiGroups: ["kappctrl.k14s.io"]
     resources: ["apps"]
-    verbs: ["*"]
+    verbs: ["get", "list", "watch", "create", "patch", "update", "delete", "deletecollection"]
+  
+  #! Knative
   - apiGroups: ["serving.knative.dev"]
     resources: ["services"]
-    verbs: ["*"]
+    verbs: ["get", "list", "watch", "create", "patch", "update", "delete", "deletecollection"]
+
+  #! Flux
   - apiGroups: ["source.toolkit.fluxcd.io"]
     resources: ["gitrepositories", "ocirepositories"]
-    verbs: ["*"]
+    verbs: ["get", "list", "watch", "create", "patch", "update", "delete", "deletecollection"]
   - apiGroups: ["kustomize.toolkit.fluxcd.io"]
     resources: ["kustomizations"]
-    verbs: ["*"]
-  - apiGroups: ["carto.run"]
-    resources: ["deliverables/finalizers", "runnables/finalizers"]
-    verbs: ["update"]
+    verbs: ["get", "list", "watch", "create", "patch", "update", "delete", "deletecollection"]
