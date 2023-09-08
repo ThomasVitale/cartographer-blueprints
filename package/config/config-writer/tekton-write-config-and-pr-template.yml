@@ -50,8 +50,7 @@ spec:
       generateName: #@ data.values.workload.metadata.name + "-config-writer-pull-requester-"
       labels: #@ merge_labels({ "app.kubernetes.io/component": "config-writer-pull-requester" })
     spec:
-      #@ if/end hasattr(data.values.workload.spec, "serviceAccountName"):
-      serviceAccountName: #@ data.values.workload.spec.serviceAccountName
+      serviceAccountName: #@ data.values.params.serviceAccount
 
       taskRef:
         resolver: cluster
