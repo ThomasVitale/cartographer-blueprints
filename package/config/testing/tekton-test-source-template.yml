@@ -16,6 +16,8 @@ spec:
       default: ""
     - name: pipelineCatalogNamespace
       default: #@ data.values.tekton_catalog_namespace
+    - name: serviceAccount
+      default: default
 
   urlPath: .status.pipelineSpec.tasks[0].params[0].value
   revisionPath: .status.pipelineSpec.tasks[0].params[1].value
@@ -74,6 +76,8 @@ spec:
       #@ else:
       #@ assert.fail("One between the 'app.kadras.io/language' label and the 'pipelineName' parameter must be not empy.")
       #@ end
+      taskRunTemplate:
+        serviceAccountName: #@ data.values.params.serviceAccount
       params:
       - name: source-url
         value: #@ data.values.source.url

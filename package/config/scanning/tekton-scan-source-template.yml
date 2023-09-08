@@ -16,6 +16,8 @@ spec:
       default: trivy
     - name: pipelineCatalogNamespace
       default: #@ data.values.tekton_catalog_namespace
+    - name: serviceAccount
+      default: default
 
   urlPath: .spec.params[0].value
   revisionPath: .spec.params[1].value
@@ -55,6 +57,7 @@ spec:
       generateName: #@ data.values.workload.metadata.name + "-source-scanner-"
       labels: #@ merge_labels({ "app.kubernetes.io/component": "source-scan" })
     spec:
+      serviceAccountName: #@ data.values.params.serviceAccount
       taskRef:
         resolver: cluster
         params:
