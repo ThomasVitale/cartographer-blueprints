@@ -2,7 +2,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: supply-chain-deliverable
+  name: cartographer-blueprints-supply-chain-deliverable
   labels:
     platform.kadras.io/aggregate-to-supply-chain-deliverable: "true"
 rules:
