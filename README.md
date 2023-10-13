@@ -6,6 +6,9 @@
 [![The Apache 2.0 license badge](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Follow us on Twitter](https://img.shields.io/static/v1?label=Twitter&message=Follow&color=1DA1F2)](https://twitter.com/kadrasIO)
 
+> **Warning**
+> This package has been archived. Cartographer blueprints are now included in the [cartographer-supply-chains](cartographer-supply-chains) package.
+
 A Carvel package providing a set of reusable blueprints to build Kubernetes-native paved paths to production using [Cartographer](https://cartographer.sh).
 
 It includes blueprints to deal with several activities like source code watching, testing, building, scanning, configuring, delivering, and deploying.
